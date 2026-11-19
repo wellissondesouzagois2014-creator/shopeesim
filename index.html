@@ -1,0 +1,2980 @@
+```html
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ShopeeBR - Sua Loja Virtual Interativa</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome para Ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Fonte Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        shopee: {
+                            DEFAULT: '#ee4d2d',
+                            dark: '#d73211',
+                            light: '#ff7337',
+                            bg: '#f5f5f5',
+                            orangeLight: '#fff0ed',
+                            gold: '#ffce3d'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #f5f5f5;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .shopee-gradient {
+            background: linear-gradient(180deg, #ee4d2d 0%, #ff7337 100%);
+        }
+        .shopee-banner-gradient {
+            background: linear-gradient(135deg, #ee4d2d 0%, #ff5722 55%, #ff8a50 100%);
+        }
+        /* Esconder scrollbar mantendo scroll horizontal */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* Linha do tempo do rastreamento SPX */
+        .timeline-line::before {
+            content: '';
+            position: absolute;
+            top: 26px;
+            bottom: -18px;
+            left: 11px;
+            width: 2px;
+            background-color: #e5e7eb;
+            z-index: 0;
+        }
+        .timeline-item:last-child .timeline-line::before {
+            display: none;
+        }
+        .timeline-item:first-child .timeline-line::before {
+            background-color: #26aa99;
+        }
+        /* Animações suaves */
+        @keyframes slideIn {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .toast-enter {
+            animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes popScale {
+            0% { transform: scale(0.85); opacity: 0; }
+            70% { transform: scale(1.03); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .pop-in {
+            animation: popScale 0.35s ease-out forwards;
+        }
+        @keyframes pulseBadge {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.25); }
+        }
+        .badge-bump {
+            animation: pulseBadge 0.3s ease-in-out;
+        }
+        @keyframes coinSpin {
+            0% { transform: translateY(0) rotateY(0deg) scale(1); opacity: 1; }
+            100% { transform: translateY(-90px) rotateY(720deg) scale(1.3); opacity: 0; }
+        }
+        .coin-fly {
+            animation: coinSpin 0.95s ease-out forwards;
+        }
+        @keyframes truckDrive {
+            0%, 100% { transform: translateX(0px); }
+            50% { transform: translateX(4px); }
+        }
+        .truck-bounce {
+            animation: truckDrive 1.2s ease-in-out infinite;
+        }
+        /* Recorte de cupom estilo Shopee */
+        .coupon-ticket {
+            position: relative;
+            background: radial-gradient(circle at 0 50%, transparent 6px, #fff0ed 6.5px),
+                        radial-gradient(circle at 100% 50%, transparent 6px, #fff0ed 6.5px);
+            background-size: 51% 100%;
+            background-position: left, right;
+            background-repeat: no-repeat;
+        }
+    </style>
+</head>
+<body class="text-gray-800 min-h-screen flex flex-col pb-16 md:pb-0">
+
+    <!-- ==================== NOTIFICAÇÃO TOAST ==================== -->
+    <div id="toast-container" class="fixed top-16 md:top-auto md:bottom-5 right-4 left-4 md:left-auto z-50 flex flex-col items-center md:items-end gap-2 pointer-events-none"></div>
+
+    <!-- ==================== MODAL DE SALA / CONEXÃO ONLINE ==================== -->
+    <div id="help-modal" class="fixed inset-0 bg-black/60 z-50 hidden items-center justify-center p-4 backdrop-blur-xs">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl pop-in max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b pb-3 mb-4">
+                <h3 class="text-lg font-extrabold text-shopee flex items-center gap-2">
+                    <i class="fa-solid fa-satellite-dish"></i> Conexão Online entre Celulares
+                </h3>
+                <button onclick="toggleModal('help-modal')" class="text-gray-400 hover:text-gray-600 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-4 text-sm text-gray-600">
+                <div class="bg-emerald-50 border border-emerald-200 p-3.5 rounded-2xl">
+                    <p class="font-bold text-emerald-900 mb-1 flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping inline-block"></span>
+                        Loja Sincronizada em Tempo Real!
+                    </p>
+                    <p class="text-xs text-emerald-800 leading-relaxed">Envie o link desta página para os celulares dos seus amigos. Produtos cadastrados, compras realizadas, avaliações e atualizações do rastreamento aparecem <strong>na hora</strong> para todos!</p>
+                </div>
+
+                <div class="bg-orange-50 border border-orange-200 p-3.5 rounded-2xl">
+                    <p class="font-bold text-gray-800 mb-1 text-xs uppercase tracking-wider text-shopee">Acesso Desenvolvedor / Vendedor:</p>
+                    <p class="text-xs leading-relaxed">Entre com qualquer nome contendo <code class="bg-white px-1.5 py-0.5 rounded border border-orange-300 font-bold text-shopee">[admloja]</code> (ex: <span class="font-mono font-bold text-gray-900">user[admloja]</span>) para gerenciar produtos e controlar o rastreamento SPX.</p>
+                </div>
+
+                <div class="bg-gray-50 border border-gray-200 p-3.5 rounded-2xl">
+                    <p class="font-bold text-gray-800 mb-1 text-xs uppercase tracking-wider">Código da Sala da Loja:</p>
+                    <p class="text-xs text-gray-500 mb-2">Padrão: <strong>oficial</strong>. Para criar uma sala privada só com sua turma, todos devem digitar o mesmo código:</p>
+                    
+                    <div class="flex gap-2">
+                        <input type="text" id="room-code-input" placeholder="Ex: oficial" class="flex-1 border border-gray-300 rounded-xl px-3 py-2 text-xs font-mono uppercase focus:outline-none focus:border-shopee bg-white">
+                        <button onclick="changeStoreRoom()" class="bg-shopee hover:bg-shopee-dark text-white font-bold px-4 py-2 rounded-xl text-xs transition shadow-xs">
+                            Conectar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-5 text-right">
+                <button onclick="toggleModal('help-modal')" class="w-full sm:w-auto bg-gray-900 hover:bg-gray-800 text-white font-bold px-6 py-2.5 rounded-xl text-sm transition">
+                    Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL DE NOTIFICAÇÕES AO VIVO ==================== -->
+    <div id="notifications-modal" class="fixed inset-0 bg-black/60 z-50 hidden items-start sm:items-center justify-center p-4 backdrop-blur-xs">
+        <div class="bg-white rounded-3xl max-w-md w-full p-5 shadow-2xl pop-in mt-12 sm:mt-0 max-h-[82vh] flex flex-col">
+            <div class="flex justify-between items-center border-b pb-3 mb-3">
+                <h3 class="text-base font-extrabold text-gray-800 flex items-center gap-2">
+                    <i class="fa-solid fa-bell text-shopee"></i> Notificações da Loja
+                </h3>
+                <button onclick="toggleModal('notifications-modal')" class="text-gray-400 hover:text-gray-600 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div id="notifications-list" class="flex-1 overflow-y-auto space-y-2.5 pr-1">
+                <!-- Preenchido via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL DE CHECK-IN DIÁRIO & MOEDAS SHOPEE ==================== -->
+    <div id="coins-modal" class="fixed inset-0 bg-black/65 z-50 hidden items-center justify-center p-4 backdrop-blur-xs">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl pop-in text-center relative overflow-hidden">
+            <div id="coin-animation-anchor" class="absolute inset-0 pointer-events-none flex items-center justify-center"></div>
+            <button onclick="toggleModal('coins-modal')" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 w-8 h-8 rounded-full flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-300 text-white flex items-center justify-center text-3xl mx-auto mb-3 shadow-lg shadow-amber-400/40">
+                <i class="fa-solid fa-coins"></i>
+            </div>
+            <span class="bg-amber-100 text-amber-800 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full">Clube Moedas Shopee</span>
+            <h3 class="text-xl font-black text-gray-800 mt-2">Seu Saldo: <span id="modal-coins-balance" class="text-amber-600">50</span> Moedas</h3>
+            <p class="text-xs text-gray-500 mt-1">Cada <strong>10 Moedas = R$ 1,00 de desconto</strong> direto no carrinho!</p>
+
+            <!-- Dias da Semana -->
+            <div class="grid grid-cols-7 gap-1 my-4">
+                <div class="bg-amber-50 border border-amber-300 rounded-xl py-2 px-1 text-center">
+                    <span class="block text-[9px] text-gray-500 font-bold">Dia 1</span>
+                    <i class="fa-solid fa-coins text-amber-500 text-xs my-0.5"></i>
+                    <span class="block text-[10px] font-black text-amber-700">+10</span>
+                </div>
+                <div class="bg-amber-50 border border-amber-300 rounded-xl py-2 px-1 text-center">
+                    <span class="block text-[9px] text-gray-500 font-bold">Dia 2</span>
+                    <i class="fa-solid fa-coins text-amber-500 text-xs my-0.5"></i>
+                    <span class="block text-[10px] font-black text-amber-700">+15</span>
+                </div>
+                <div class="bg-amber-50 border border-amber-300 rounded-xl py-2 px-1 text-center">
+                    <span class="block text-[9px] text-gray-500 font-bold">Dia 3</span>
+                    <i class="fa-solid fa-coins text-amber-500 text-xs my-0.5"></i>
+                    <span class="block text-[10px] font-black text-amber-700">+20</span>
+                </div>
+                <div class="bg-amber-50 border border-amber-300 rounded-xl py-2 px-1 text-center">
+                    <span class="block text-[9px] text-gray-500 font-bold">Dia 4</span>
+                    <i class="fa-solid fa-coins text-amber-500 text-xs my-0.5"></i>
+                    <span class="block text-[10px] font-black text-amber-700">+25</span>
+                </div>
+                <div class="bg-amber-50 border border-amber-300 rounded-xl py-2 px-1 text-center">
+                    <span class="block text-[9px] text-gray-500 font-bold">Dia 5</span>
+                    <i class="fa-solid fa-coins text-amber-500 text-xs my-0.5"></i>
+                    <span class="block text-[10px] font-black text-amber-700">+30</span>
+                </div>
+                <div class="bg-amber-50 border border-amber-300 rounded-xl py-2 px-1 text-center">
+                    <span class="block text-[9px] text-gray-500 font-bold">Dia 6</span>
+                    <i class="fa-solid fa-coins text-amber-500 text-xs my-0.5"></i>
+                    <span class="block text-[10px] font-black text-amber-700">+40</span>
+                </div>
+                <div class="bg-gradient-to-b from-amber-400 to-orange-500 text-white rounded-xl py-2 px-1 text-center shadow-xs">
+                    <span class="block text-[9px] font-bold">HOJE</span>
+                    <i class="fa-solid fa-gift text-xs my-0.5"></i>
+                    <span class="block text-[10px] font-black">+50</span>
+                </div>
+            </div>
+
+            <button id="claim-daily-coins-btn" onclick="claimDailyCoins()" class="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:opacity-95 text-white font-extrabold py-3 rounded-xl shadow-lg shadow-amber-500/30 transition text-sm">
+                <i class="fa-solid fa-hand-sparkles mr-1"></i> Resgatar +50 Moedas Hoje!
+            </button>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL DE DETALHES DO PRODUTO ==================== -->
+    <div id="product-detail-modal" class="fixed inset-0 bg-black/65 z-50 hidden items-end sm:items-center justify-center sm:p-4 backdrop-blur-xs">
+        <div class="bg-white w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl pop-in max-h-[92vh] flex flex-col">
+            <div class="relative aspect-square sm:aspect-[4/3] bg-gray-100 shrink-0 group overflow-hidden">
+                <img id="detail-img" src="" alt="Produto" class="w-full h-full object-cover transition duration-500 group-hover:scale-105">
+                <button onclick="toggleModal('product-detail-modal')" class="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white w-9 h-9 rounded-full flex items-center justify-center backdrop-blur-xs transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+                <span id="detail-discount-badge" class="absolute top-3 left-3 bg-shopee text-white text-xs font-extrabold px-2.5 py-1 rounded-lg shadow">
+                    -30% OFF
+                </span>
+                <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/75 via-black/35 to-transparent p-4 text-white flex items-center justify-between">
+                    <span id="detail-category-tag" class="bg-white/20 backdrop-blur-xs px-2.5 py-0.5 rounded-full text-xs font-semibold">
+                        Categoria
+                    </span>
+                    <span class="text-xs font-bold flex items-center gap-1 text-yellow-300">
+                        <i class="fa-solid fa-star"></i> 4.9 <span class="text-white/80 font-normal" id="detail-sold">(120 vendidos)</span>
+                    </span>
+                </div>
+            </div>
+
+            <div class="p-5 overflow-y-auto flex-1 space-y-4">
+                <div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-baseline gap-2">
+                            <span id="detail-price" class="text-2xl sm:text-3xl font-black text-shopee">R$ 0,00</span>
+                            <span id="detail-old-price" class="text-sm text-gray-400 line-through">R$ 0,00</span>
+                        </div>
+                        <button id="detail-fav-btn" class="w-9 h-9 rounded-full bg-gray-100 hover:bg-red-50 text-gray-400 flex items-center justify-center transition">
+                            <i class="fa-solid fa-heart"></i>
+                        </button>
+                    </div>
+                    <h3 id="detail-name" class="text-base sm:text-lg font-bold text-gray-800 mt-1 leading-snug">Nome do Produto</h3>
+                    <p class="text-[11px] text-teal-600 font-bold mt-0.5"><i class="fa-regular fa-credit-card"></i> Em até 10x sem juros no Cartão Shopee</p>
+                </div>
+
+                <!-- Seletor de Variação Estilo Shopee -->
+                <div>
+                    <span class="text-[11px] font-extrabold uppercase text-gray-500 block mb-1.5">Escolha a Opção / Modelo:</span>
+                    <div id="detail-variants" class="flex flex-wrap gap-2">
+                        <button type="button" onclick="selectProductVariant(this, 'Padrão Oficial')" class="variant-btn border-2 border-shopee bg-shopee-orangeLight text-shopee text-xs font-bold px-3 py-1.5 rounded-xl transition">Padrão Oficial</button>
+                        <button type="button" onclick="selectProductVariant(this, 'Edição Especial')" class="variant-btn border border-gray-200 bg-white text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-xl transition">Edição Especial</button>
+                        <button type="button" onclick="selectProductVariant(this, 'Kit Completo + Brinde')" class="variant-btn border border-gray-200 bg-white text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-xl transition">Kit Completo + Brinde</button>
+                    </div>
+                </div>
+
+                <!-- Calculadora Simulada de Frete -->
+                <div class="bg-teal-50/70 border border-teal-100 p-3 rounded-2xl space-y-2">
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="font-bold text-teal-800 flex items-center gap-1.5">
+                            <i class="fa-solid fa-truck-fast text-teal-600"></i> Envio Shopee Xpress (SPX)
+                        </span>
+                        <span class="bg-teal-600 text-white text-[10px] font-extrabold px-2 py-0.5 rounded">FRETE GRÁTIS</span>
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="text" id="detail-cep-input" placeholder="Digite seu bairro ou cidade..." class="flex-1 bg-white border border-teal-200 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-teal-500">
+                        <button type="button" onclick="simulateShippingQuote()" class="bg-teal-600 hover:bg-teal-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition">Calcular</button>
+                    </div>
+                    <p id="detail-shipping-result" class="text-[11px] text-teal-700 font-semibold hidden"></p>
+                </div>
+
+                <div class="bg-gray-50 p-3.5 rounded-2xl border border-gray-100">
+                    <h4 class="text-xs font-extrabold uppercase text-gray-500 mb-1">Descrição do Produto</h4>
+                    <p id="detail-desc" class="text-xs sm:text-sm text-gray-600 leading-relaxed">Descrição detalhada aqui.</p>
+                </div>
+
+                <!-- Avaliações dos Clientes que Compraram -->
+                <div class="border-t pt-3">
+                    <h4 class="text-xs font-extrabold uppercase text-gray-600 mb-2 flex items-center justify-between">
+                        <span><i class="fa-solid fa-star text-yellow-400"></i> Avaliações da Galera</span>
+                        <span id="detail-reviews-count" class="text-[11px] text-shopee font-bold">0 avaliações</span>
+                    </h4>
+                    <div id="detail-reviews-list" class="space-y-2">
+                        <!-- Avaliações inseridas via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 border-t bg-white flex gap-3 shrink-0">
+                <button id="detail-add-btn" class="flex-1 bg-shopee-orangeLight hover:bg-orange-100 text-shopee border border-shopee font-bold py-3 rounded-xl text-sm transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-cart-plus"></i> Adicionar
+                </button>
+                <button id="detail-buy-now-btn" class="flex-1 bg-shopee hover:bg-shopee-dark text-white font-bold py-3 rounded-xl text-sm shadow-md transition flex items-center justify-center gap-2">
+                    Comprar Agora
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL DE CELEBRAÇÃO DE PEDIDO ==================== -->
+    <div id="order-success-modal" class="fixed inset-0 bg-black/70 z-50 hidden items-center justify-center p-4 backdrop-blur-xs">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl pop-in relative overflow-hidden">
+            <div class="w-20 h-20 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center text-4xl mx-auto mb-4 shadow-inner">
+                <i class="fa-solid fa-check"></i>
+            </div>
+            <span class="bg-orange-100 text-shopee text-[11px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">Pedido Enviado ao Vivo!</span>
+            <h3 class="text-2xl font-black text-gray-800 mt-3">Compra Confirmada!</h3>
+            <p class="text-xs sm:text-sm text-gray-500 mt-2 leading-relaxed">
+                O vendedor já recebeu o aviso no celular dele! Você ganhou <strong class="text-amber-600">+20 Moedas Shopee</strong> e já pode acompanhar o rastreamento SPX.
+            </p>
+            <div class="bg-gray-50 rounded-2xl p-3 my-4 border border-gray-100 text-xs space-y-1">
+                <span class="text-gray-400 block">Código de Rastreio SPX:</span>
+                <span id="success-tracking-code" class="font-mono font-extrabold text-gray-800 text-sm block">BR260000000SPX</span>
+                <span id="success-total-paid" class="text-shopee font-black text-xs block">Total pago: R$ 0,00</span>
+            </div>
+            <button onclick="closeSuccessAndTrack()" class="w-full bg-shopee hover:bg-shopee-dark text-white font-bold py-3.5 rounded-xl shadow-lg transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-truck-fast"></i> Acompanhar Rastreamento
+            </button>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL DE AVALIAÇÃO COM ESTRELAS ==================== -->
+    <div id="rating-modal" class="fixed inset-0 bg-black/60 z-50 hidden items-center justify-center p-4 backdrop-blur-xs">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl pop-in text-center">
+            <h3 class="text-lg font-extrabold text-gray-800">Avaliar Pedido Recebido</h3>
+            <p class="text-xs text-gray-500 mt-1">Sua avaliação aparece na página do produto para seus amigos!</p>
+            
+            <div id="star-selector" class="flex justify-center gap-2 my-5 text-3xl text-yellow-400">
+                <button type="button" onclick="selectStars(1)" class="hover:scale-110 transition"><i class="fa-solid fa-star"></i></button>
+                <button type="button" onclick="selectStars(2)" class="hover:scale-110 transition"><i class="fa-solid fa-star"></i></button>
+                <button type="button" onclick="selectStars(3)" class="hover:scale-110 transition"><i class="fa-solid fa-star"></i></button>
+                <button type="button" onclick="selectStars(4)" class="hover:scale-110 transition"><i class="fa-solid fa-star"></i></button>
+                <button type="button" onclick="selectStars(5)" class="hover:scale-110 transition"><i class="fa-solid fa-star"></i></button>
+            </div>
+
+            <textarea id="rating-comment" rows="2" placeholder="Ex: Chegou super rápido, vendedor top demais!" class="w-full border border-gray-300 rounded-xl p-2.5 text-xs focus:border-shopee focus:outline-none mb-4"></textarea>
+
+            <div class="flex gap-2">
+                <button onclick="toggleModal('rating-modal')" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 rounded-xl text-xs">Cancelar</button>
+                <button onclick="submitOrderRating()" class="flex-1 bg-shopee hover:bg-shopee-dark text-white font-bold py-2.5 rounded-xl text-xs shadow">Enviar Avaliação</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== TELA 1: LOGIN / IDENTIFICAÇÃO ==================== -->
+    <div id="login-screen" class="flex-1 flex items-center justify-center p-4 shopee-gradient relative overflow-hidden">
+        <div class="absolute -top-20 -left-20 w-72 h-72 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="absolute -bottom-24 -right-24 w-80 h-80 bg-yellow-300/20 rounded-full blur-2xl pointer-events-none"></div>
+
+        <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 sm:p-8 relative z-10 pop-in">
+            <div class="text-center mb-6">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl shopee-gradient text-white text-3xl mb-3 shadow-lg shadow-orange-500/30">
+                    <i class="fa-solid fa-bag-shopping"></i>
+                </div>
+                <div class="flex items-center justify-center gap-1.5">
+                    <h1 class="text-2xl sm:text-3xl font-black text-gray-800 tracking-tight">Shopee<span class="text-shopee">Sim</span></h1>
+                    <span class="bg-shopee text-white text-[10px] font-black px-1.5 py-0.5 rounded uppercase">2026</span>
+                </div>
+                <p class="text-gray-500 text-xs sm:text-sm mt-1">Sua loja interativa ao vivo para brincar com os amigos</p>
+            </div>
+
+            <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label for="username-input" class="block text-xs font-extrabold uppercase tracking-wider text-gray-600 mb-1.5">Seu Nome na Loja</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-shopee">
+                            <i class="fa-solid fa-user"></i>
+                        </span>
+                        <input 
+                            type="text" 
+                            id="username-input" 
+                            required
+                            placeholder="Ex: Antônio, Maria, Lucas..." 
+                            class="w-full pl-10 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-shopee focus:border-shopee outline-none transition text-gray-800 font-semibold text-sm"
+                        >
+                    </div>
+                    <div class="mt-2.5 bg-orange-50 border border-orange-100 rounded-xl p-2.5 flex items-start gap-2">
+                        <i class="fa-solid fa-key text-shopee text-xs mt-0.5"></i>
+                        <p class="text-[11px] text-gray-600 leading-snug">
+                            Para desbloquear o <strong>Shopee Seller Center</strong>, coloque <code class="bg-white px-1 py-0.2 rounded border font-bold text-shopee">[admloja]</code> junto ao nome (ex: <span class="font-mono font-bold">user[admloja]</span>).
+                        </p>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full shopee-gradient hover:opacity-95 text-white font-extrabold py-3.5 rounded-xl shadow-lg shadow-orange-500/30 transition transform active:scale-[0.98] flex items-center justify-center gap-2 text-base">
+                    <span>Entrar na ShopeeSim</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </form>
+
+            <div class="mt-6 pt-4 border-t border-gray-100 flex justify-between items-center text-xs text-gray-500">
+                <button onclick="toggleModal('help-modal')" class="text-shopee hover:underline font-bold flex items-center gap-1.5">
+                    <i class="fa-solid fa-wifi"></i> Configurar Sala
+                </button>
+                <span id="login-cloud-status" class="flex items-center gap-1.5 text-gray-400 font-semibold">
+                    <span class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></span> Conectando...
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== APLICAÇÃO PRINCIPAL (LOGADO) ==================== -->
+    <div id="main-app" class="hidden flex-col min-h-screen">
+        
+        <!-- HEADER PREMIUM ESTILO SHOPEE OFICIAL 2026 -->
+        <header class="shopee-gradient text-white shadow-md sticky top-0 z-40">
+            <!-- Top Bar Compacta -->
+            <div class="max-w-6xl mx-auto px-3 sm:px-4 py-1.5 flex justify-between items-center text-[11px] border-b border-white/15">
+                <div class="flex items-center gap-2">
+                    <span id="role-badge" class="bg-white/20 px-2 py-0.5 rounded font-bold flex items-center gap-1">
+                        <i class="fa-solid fa-user"></i> Cliente
+                    </span>
+                    <button onclick="toggleModal('help-modal')" class="bg-black/20 hover:bg-black/30 px-2 py-0.5 rounded-full flex items-center gap-1.5 transition">
+                        <span id="online-dot" class="w-2 h-2 rounded-full bg-yellow-300 animate-pulse"></span>
+                        <span id="online-status-text" class="font-semibold">Loja Online • Ao Vivo</span>
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <!-- Carteira de Moedas Shopee Clicável -->
+                    <button id="coins-wallet-pill" onclick="openCoinsModal()" class="bg-yellow-400/25 hover:bg-yellow-400/35 border border-yellow-300/50 px-2.5 py-0.5 rounded-full flex items-center gap-1 text-yellow-200 font-extrabold transition">
+                        <i class="fa-solid fa-coins text-yellow-300"></i>
+                        <span id="user-coins-display">50</span>
+                    </button>
+
+                    <!-- Notificações ao Vivo -->
+                    <button onclick="openNotificationsModal()" class="relative bg-white/15 hover:bg-white/25 w-6 h-6 rounded-full flex items-center justify-center transition" title="Notificações">
+                        <i class="fa-solid fa-bell text-xs"></i>
+                        <span id="notif-badge" class="hidden absolute -top-1 -right-1 bg-yellow-400 text-gray-900 text-[9px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center">0</span>
+                    </button>
+
+                    <button id="switch-view-btn" onclick="toggleAdminPreview()" class="hidden bg-yellow-400 text-gray-900 font-extrabold px-2.5 py-0.5 rounded-full hover:bg-yellow-300 transition shadow-xs">
+                        <i class="fa-solid fa-eye"></i> Ver Loja
+                    </button>
+
+                    <button onclick="logout()" class="bg-black/20 hover:bg-black/30 px-2 py-0.5 rounded-lg font-semibold transition flex items-center gap-1">
+                        <i class="fa-solid fa-right-from-bracket"></i> <span class="hidden sm:inline">Sair</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Barra Principal: Logo + Busca + Ações -->
+            <div class="max-w-6xl mx-auto px-3 sm:px-4 py-2.5 flex items-center justify-between gap-2.5 sm:gap-4">
+                <!-- Logo -->
+                <div class="flex items-center gap-2 cursor-pointer shrink-0" onclick="handleLogoClick()">
+                    <div class="bg-white text-shopee w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center text-xl sm:text-2xl shadow-sm">
+                        <i class="fa-solid fa-bag-shopping"></i>
+                    </div>
+                    <div class="hidden sm:block">
+                        <h1 class="text-xl font-black leading-none tracking-tight">Shopee<span class="font-light">Sim</span></h1>
+                        <span id="header-subtitle" class="text-[10px] text-white/90 font-semibold">Oficial • ShopeePay & SPX</span>
+                    </div>
+                </div>
+
+                <!-- Barra de Busca Integrada -->
+                <div id="header-search-wrapper" class="flex-1 max-w-xl relative">
+                    <input 
+                        type="text" 
+                        id="search-products" 
+                        onkeyup="renderStoreProducts()" 
+                        placeholder="Buscar achadinhos na ShopeeSim..." 
+                        class="w-full pl-3.5 pr-10 py-2 bg-white text-gray-800 rounded-xl shadow-inner focus:outline-none text-xs sm:text-sm font-medium placeholder-gray-400"
+                    >
+                    <button onclick="renderStoreProducts()" class="absolute right-1 top-1 bottom-1 bg-shopee hover:bg-shopee-dark text-white px-3 rounded-lg text-xs transition flex items-center justify-center">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </div>
+
+                <!-- Navegação Cliente -->
+                <nav id="client-nav" class="flex items-center gap-2 shrink-0">
+                    <button onclick="switchTab('store')" id="nav-store" class="hidden md:flex px-3 py-2 rounded-xl font-bold text-xs bg-white text-shopee shadow-xs transition items-center gap-1.5">
+                        <i class="fa-solid fa-store"></i> <span>Vitrine</span>
+                    </button>
+                    <button onclick="switchTab('my-orders')" id="nav-my-orders" class="hidden md:flex px-3 py-2 rounded-xl font-bold text-xs text-white hover:bg-white/15 transition items-center gap-1.5 relative">
+                        <i class="fa-solid fa-truck-fast"></i> <span>Minhas Compras</span>
+                        <span id="client-orders-badge" class="hidden bg-yellow-400 text-gray-900 text-[10px] font-black px-1.5 py-0.2 rounded-full">0</span>
+                    </button>
+                    <button onclick="toggleCartDrawer()" id="header-cart-btn" class="relative p-2 sm:p-2.5 bg-white/15 hover:bg-white/25 rounded-xl transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-cart-shopping text-lg"></i>
+                        <span id="cart-count-badge" class="bg-white text-shopee text-[11px] font-black min-w-[20px] h-5 px-1 rounded-full flex items-center justify-center shadow">0</span>
+                    </button>
+                </nav>
+
+                <!-- Navegação Admin / Seller Center -->
+                <nav id="admin-nav" class="hidden items-center gap-1.5 sm:gap-2.5 shrink-0">
+                    <button onclick="switchAdminTab('admin-orders')" id="nav-admin-orders" class="px-3 py-2 rounded-xl font-bold text-xs bg-white text-shopee shadow-xs transition flex items-center gap-1.5 relative">
+                        <i class="fa-solid fa-box-open"></i> <span>Pedidos</span>
+                        <span id="admin-orders-badge" class="bg-yellow-400 text-gray-900 text-[10px] font-black px-1.5 py-0.2 rounded-full">0</span>
+                    </button>
+                    <button onclick="switchAdminTab('admin-products')" id="nav-admin-products" class="px-3 py-2 rounded-xl font-bold text-xs text-white hover:bg-white/15 transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-plus-circle"></i> <span>Produtos</span>
+                    </button>
+                </nav>
+            </div>
+        </header>
+
+        <!-- ==================== CONTEÚDO DO MODO CLIENTE ==================== -->
+        <main id="client-view" class="flex-1 max-w-6xl w-full mx-auto px-3 sm:px-4 py-4 sm:py-5">
+            
+            <!-- SUB-ABA 1: VITRINE DA LOJA -->
+            <section id="tab-store" class="space-y-4">
+                
+                <!-- CARROSSEL DE BANNERS HERO INTERATIVO -->
+                <div class="relative rounded-2xl overflow-hidden shadow-md group">
+                    <div id="hero-carousel-track" class="transition-all duration-500">
+                        <!-- Slide atual renderizado via JS -->
+                    </div>
+                    <!-- Botões Prev/Next -->
+                    <button onclick="prevHeroSlide()" class="hidden sm:flex absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/25 hover:bg-black/45 text-white items-center justify-center backdrop-blur-xs transition opacity-0 group-hover:opacity-100">
+                        <i class="fa-solid fa-chevron-left text-xs"></i>
+                    </button>
+                    <button onclick="nextHeroSlide()" class="hidden sm:flex absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/25 hover:bg-black/45 text-white items-center justify-center backdrop-blur-xs transition opacity-0 group-hover:opacity-100">
+                        <i class="fa-solid fa-chevron-right text-xs"></i>
+                    </button>
+                    <!-- Dots Indicadores -->
+                    <div id="hero-carousel-dots" class="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10"></div>
+                </div>
+
+                <!-- GRADE DE 8 ATALHOS RÁPIDOS ESTILO SHOPEE -->
+                <div class="bg-white rounded-2xl p-3 sm:p-4 shadow-xs border border-gray-100">
+                    <div class="grid grid-cols-4 sm:grid-cols-8 gap-2 sm:gap-3 text-center">
+                        <button onclick="claimCoupon('FRETEGRATIS')" class="flex flex-col items-center gap-1.5 group">
+                            <div class="w-11 h-11 rounded-2xl bg-teal-50 text-teal-600 group-hover:scale-105 transition flex items-center justify-center text-lg border border-teal-100 shadow-2xs">
+                                <i class="fa-solid fa-truck-fast"></i>
+                            </div>
+                            <span class="text-[10px] sm:text-[11px] font-bold text-gray-700 leading-tight">Frete Grátis</span>
+                        </button>
+
+                        <button onclick="openCoinsModal()" class="flex flex-col items-center gap-1.5 group">
+                            <div class="w-11 h-11 rounded-2xl bg-amber-50 text-amber-500 group-hover:scale-105 transition flex items-center justify-center text-lg border border-amber-100 shadow-2xs">
+                                <i class="fa-solid fa-coins"></i>
+                            </div>
+                            <span class="text-[10px] sm:text-[11px] font-bold text-gray-700 leading-tight">Moedas</span>
+                        </button>
+
+                        <button onclick="claimCoupon('SHOPEE10')" class="flex flex-col items-center gap-1.5 group">
+                            <div class="w-11 h-11 rounded-2xl bg-orange-50 text-shopee group-hover:scale-105 transition flex items-center justify-center text-lg border border-orange-100 shadow-2xs">
+                                <i class="fa-solid fa-ticket"></i>
+                            </div>
+                            <span class="text-[10px] sm:text-[11px] font-bold text-gray-700 leading-tight">Cupons</span>
+                        </button>
+
+                        <button onclick="selectCategory('Todos')" class="flex flex-col items-center gap-1.5 group">
+                            <div class="w-11 h-11 rounded-2xl bg-yellow-50 text-yellow-600 group-hover:scale-105 transition flex items-center justify-center text-lg border border-yellow-100 shadow-2xs">
+                                <i class="fa-solid fa-bolt"></i>
+                            </div>
+                            <span class="text-[10px] sm:text-[11px] font-bold text-gray-700 leading-tight">Relâmpago</span>
+                        </button>
+
+                        <button onclick="selectCategory('Eletrônicos')" class="flex flex-col items-center gap-1.5 group">
+                            <div class="w-11 h-11 rounded-2xl bg-blue-50 text-blue-600 group-hover:scale-105 transition flex items-center justify-center text-lg border border-blue-100 shadow-2xs">
+                                <i class="fa-solid fa-mobile-screen-button"></i>
+                            </div>
+                            <span class="text-[10px] sm:text-[11px] font-bold text-gray-700 leading-tight">Tecnologia</span>
+                        </button>
+
+                        <button onclick="selectCategory('Moda')" class="flex flex-col items-center gap-1.5 group">
+                            <div class="w-11 h-11 rounded-2xl bg-pink-50 text-pink-600 group-hover:scale-105 transition flex items-center justify-center text-lg border border-pink-100 shadow-2xs">
+                                <i class="fa-solid fa-shirt"></i>
+                            </div>
+                            <span class="text-[10px] sm:text-[11px] font-bold text-gray-700 leading-tight">Moda</span>
+                        </button>
+
+                        <button onclick="selectCategory('Comidas & Doces')" class="flex flex-col items-center gap-1.5 group">
+                            <div class="w-11 h-11 rounded-2xl bg-red-50 text-red-500 group-hover:scale-105 transition flex items-center justify-center text-lg border border-red-100 shadow-2xs">
+                                <i class="fa-solid fa-burger"></i>
+                            </div>
+                            <span class="text-[10px] sm:text-[11px] font-bold text-gray-700 leading-tight">Lanches</span>
+                        </button>
+
+                        <button onclick="toggleFavoritesFilter()" id="fav-shortcut-btn" class="flex flex-col items-center gap-1.5 group">
+                            <div class="w-11 h-11 rounded-2xl bg-rose-50 text-rose-500 group-hover:scale-105 transition flex items-center justify-center text-lg border border-rose-100 shadow-2xs">
+                                <i class="fa-solid fa-heart"></i>
+                            </div>
+                            <span class="text-[10px] sm:text-[11px] font-bold text-gray-700 leading-tight">Favoritos</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- FAIXA OFERTAS RELÂMPAGO + CUPONS -->
+                <div class="bg-white rounded-2xl p-3 sm:p-4 shadow-xs border border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div class="flex items-center gap-2.5">
+                        <span class="text-shopee font-black text-sm sm:text-base uppercase tracking-tight flex items-center gap-1">
+                            <i class="fa-solid fa-bolt text-yellow-500"></i> Ofertas Relâmpago
+                        </span>
+                        <div class="flex items-center gap-1 text-xs font-mono font-black">
+                            <span id="timer-h" class="bg-gray-900 text-white px-1.5 py-0.5 rounded">02</span>:
+                            <span id="timer-m" class="bg-gray-900 text-white px-1.5 py-0.5 rounded">45</span>:
+                            <span id="timer-s" class="bg-gray-900 text-white px-1.5 py-0.5 rounded">59</span>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2 overflow-x-auto no-scrollbar">
+                        <button onclick="claimCoupon('SHOPEE10')" class="coupon-ticket shrink-0 px-3 py-1.5 rounded-xl text-left border border-orange-200 hover:scale-[1.02] transition">
+                            <span class="block text-[10px] font-black text-shopee">10% OFF • SHOPEE10</span>
+                            <span class="text-[9px] text-teal-600 font-bold"><i class="fa-solid fa-copy"></i> Toque para aplicar</span>
+                        </button>
+                        <button onclick="claimCoupon('MEGA20')" class="coupon-ticket shrink-0 px-3 py-1.5 rounded-xl text-left border border-orange-200 hover:scale-[1.02] transition">
+                            <span class="block text-[10px] font-black text-purple-700">20% OFF • MEGA20</span>
+                            <span class="text-[9px] text-shopee font-bold"><i class="fa-solid fa-bolt"></i> Cupom VIP</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Barra de Categorias Horizontais -->
+                <div id="category-bar" class="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
+                    <!-- Categorias inseridas via JS -->
+                </div>
+
+                <!-- Cabeçalho Descobertas do Dia -->
+                <div class="bg-white rounded-t-xl px-4 py-3 border-b-2 border-shopee flex items-center justify-between shadow-2xs">
+                    <span id="discover-title-label" class="text-shopee font-black text-xs sm:text-sm uppercase tracking-wider flex items-center gap-1.5">
+                        <i class="fa-solid fa-fire"></i> Descobertas do Dia
+                    </span>
+                    <span id="store-count-label" class="text-[11px] text-gray-400 font-medium">Mostrando produtos</span>
+                </div>
+
+                <!-- Grid de Produtos Estilo Shopee -->
+                <div id="store-products-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 sm:gap-4 -mt-3">
+                    <!-- Produtos inseridos via JS -->
+                </div>
+            </section>
+
+            <!-- SUB-ABA 2: MINHAS COMPRAS E RASTREAMENTO SPX -->
+            <section id="tab-my-orders" class="hidden space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-black text-gray-800 flex items-center gap-2">
+                            <i class="fa-solid fa-truck-fast text-shopee"></i> Minhas Compras & Rastreio SPX
+                        </h2>
+                        <p class="text-xs sm:text-sm text-gray-500">Acompanhe cada etapa enviada ao vivo pelo vendedor.</p>
+                    </div>
+                    <button onclick="switchTab('store')" class="text-shopee font-bold text-xs sm:text-sm hover:underline flex items-center gap-1 self-start bg-white px-3 py-1.5 rounded-xl border border-orange-100">
+                        <i class="fa-solid fa-arrow-left"></i> Continuar comprando
+                    </button>
+                </div>
+
+                <!-- Abas de Filtro Estilo Shopee -->
+                <div class="bg-white rounded-2xl p-1.5 shadow-2xs border border-gray-100 flex items-center gap-1 overflow-x-auto no-scrollbar">
+                    <button onclick="setOrderFilter('all')" id="ord-tab-all" class="flex-1 min-w-[85px] py-2 px-3 rounded-xl text-xs font-extrabold bg-shopee text-white transition">Todos</button>
+                    <button onclick="setOrderFilter('prep')" id="ord-tab-prep" class="flex-1 min-w-[105px] py-2 px-3 rounded-xl text-xs font-bold text-gray-600 hover:bg-gray-50 transition">Em Preparação</button>
+                    <button onclick="setOrderFilter('transit')" id="ord-tab-transit" class="flex-1 min-w-[95px] py-2 px-3 rounded-xl text-xs font-bold text-gray-600 hover:bg-gray-50 transition">A Caminho</button>
+                    <button onclick="setOrderFilter('delivered')" id="ord-tab-delivered" class="flex-1 min-w-[95px] py-2 px-3 rounded-xl text-xs font-bold text-gray-600 hover:bg-gray-50 transition">Entregues</button>
+                </div>
+
+                <div id="client-orders-list" class="space-y-5">
+                    <!-- Pedidos do cliente inseridos via JS -->
+                </div>
+            </section>
+
+        </main>
+
+        <!-- ==================== CONTEÚDO DO MODO DESENVOLVEDOR / SELLER CENTER ==================== -->
+        <main id="admin-view" class="hidden flex-1 max-w-6xl w-full mx-auto px-3 sm:px-4 py-5 space-y-5">
+            
+            <!-- Dashboard Executivo Shopee Seller Center -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-xs">
+                    <div class="flex items-center justify-between text-gray-400 text-xs font-bold mb-1">
+                        <span>FATURAMENTO</span>
+                        <span class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center"><i class="fa-solid fa-sack-dollar"></i></span>
+                    </div>
+                    <p id="stat-revenue" class="text-lg sm:text-2xl font-black text-gray-800">R$ 0,00</p>
+                    <span class="text-[10px] text-emerald-600 font-semibold">Vendas totais</span>
+                </div>
+
+                <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-xs">
+                    <div class="flex items-center justify-between text-gray-400 text-xs font-bold mb-1">
+                        <span>PEDIDOS</span>
+                        <span class="w-7 h-7 rounded-lg bg-orange-50 text-shopee flex items-center justify-center"><i class="fa-solid fa-bag-shopping"></i></span>
+                    </div>
+                    <p id="stat-orders" class="text-lg sm:text-2xl font-black text-gray-800">0</p>
+                    <span id="stat-pending-sub" class="text-[10px] text-shopee font-semibold">0 em andamento</span>
+                </div>
+
+                <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-xs">
+                    <div class="flex items-center justify-between text-gray-400 text-xs font-bold mb-1">
+                        <span>TICKET MÉDIO</span>
+                        <span class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center"><i class="fa-solid fa-chart-line"></i></span>
+                    </div>
+                    <p id="stat-avg-ticket" class="text-lg sm:text-2xl font-black text-gray-800">R$ 0,00</p>
+                    <span class="text-[10px] text-blue-600 font-semibold">Por compra</span>
+                </div>
+
+                <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-xs">
+                    <div class="flex items-center justify-between text-gray-400 text-xs font-bold mb-1">
+                        <span>CLIENTES</span>
+                        <span class="w-7 h-7 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center"><i class="fa-solid fa-users"></i></span>
+                    </div>
+                    <p id="stat-customers" class="text-lg sm:text-2xl font-black text-gray-800">0</p>
+                    <span class="text-[10px] text-purple-600 font-semibold">Compradores únicos</span>
+                </div>
+            </div>
+
+            <!-- ABA ADMIN 1: PEDIDOS RECEBIDOS E CONTROLE DE RASTREAMENTO -->
+            <section id="admin-tab-orders">
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                    <h3 class="text-lg sm:text-xl font-black text-gray-800 flex items-center gap-2">
+                        <i class="fa-solid fa-clipboard-list text-shopee"></i> Pedidos Recebidos
+                    </h3>
+                    <div class="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-gray-200 text-xs">
+                        <button onclick="setAdminOrderFilter('all')" id="adm-filt-all" class="px-2.5 py-1 rounded-lg font-extrabold bg-shopee text-white">Todos</button>
+                        <button onclick="setAdminOrderFilter('active')" id="adm-filt-active" class="px-2.5 py-1 rounded-lg font-bold text-gray-600">Em Aberto</button>
+                        <button onclick="setAdminOrderFilter('delivered')" id="adm-filt-delivered" class="px-2.5 py-1 rounded-lg font-bold text-gray-600">Entregues</button>
+                    </div>
+                </div>
+
+                <div id="admin-orders-list" class="space-y-5">
+                    <!-- Lista de pedidos para o admin gerenciar -->
+                </div>
+            </section>
+
+            <!-- ABA ADMIN 2: GERENCIAR PRODUTOS (COM PREVIEW AO VIVO) -->
+            <section id="admin-tab-products" class="hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    
+                    <!-- Formulário de Cadastro / Edição de Produto -->
+                    <div class="lg:col-span-6">
+                        <div class="bg-white rounded-2xl p-5 shadow-xs border border-gray-100">
+                            <div class="flex items-center justify-between border-b pb-3 mb-4">
+                                <h3 id="product-form-title" class="text-base sm:text-lg font-extrabold text-gray-800 flex items-center gap-2">
+                                    <i class="fa-solid fa-circle-plus text-shopee"></i> Cadastrar Produto
+                                </h3>
+                                <button type="button" id="cancel-edit-btn" onclick="resetProductForm()" class="hidden text-xs text-gray-500 hover:text-gray-800 font-bold bg-gray-100 px-2.5 py-1 rounded-lg">
+                                    Cancelar Edição
+                                </button>
+                            </div>
+                            
+                            <form id="add-product-form" onsubmit="handleSaveProduct(event)" class="space-y-3.5">
+                                <input type="hidden" id="edit-prod-id" value="">
+
+                                <div>
+                                    <label class="block text-[11px] font-extrabold text-gray-600 uppercase mb-1">Nome do Produto *</label>
+                                    <input type="text" id="prod-name" oninput="updateLiveProductPreview()" required placeholder="Ex: Fone Bluetooth Gamer Pro" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl text-sm focus:border-shopee focus:outline-none">
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-[11px] font-extrabold text-gray-600 uppercase mb-1">Preço Atual (R$) *</label>
+                                        <input type="number" id="prod-price" oninput="updateLiveProductPreview()" step="0.01" min="0.10" required placeholder="59.90" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl text-sm focus:border-shopee focus:outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-extrabold text-gray-600 uppercase mb-1">Preço Original (Opcional)</label>
+                                        <input type="number" id="prod-old-price" oninput="updateLiveProductPreview()" step="0.01" min="0.10" placeholder="89.90" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl text-sm focus:border-shopee focus:outline-none">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-[11px] font-extrabold text-gray-600 uppercase mb-1">Categoria</label>
+                                        <select id="prod-category" onchange="updateLiveProductPreview()" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl text-sm bg-white focus:border-shopee focus:outline-none font-medium">
+                                            <option value="Eletrônicos">📱 Eletrônicos</option>
+                                            <option value="Moda">👕 Moda & Acessórios</option>
+                                            <option value="Comidas & Doces">🍔 Comidas & Doces</option>
+                                            <option value="Brinquedos">🎮 Brinquedos & Games</option>
+                                            <option value="Casa">🏠 Casa & Decoração</option>
+                                            <option value="Outros">✨ Outros</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-extrabold text-gray-600 uppercase mb-1">Selo do Card</label>
+                                        <select id="prod-badge" onchange="updateLiveProductPreview()" class="w-full px-3 py-2.5 border border-gray-300 rounded-xl text-sm bg-white focus:border-shopee focus:outline-none font-medium">
+                                            <option value="Indicado">Indicado</option>
+                                            <option value="Oficial">Shopee Oficial</option>
+                                            <option value="Relâmpago">Relâmpago</option>
+                                            <option value="Top Vendas">Top Vendas</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-[11px] font-extrabold text-gray-600 uppercase mb-1">Foto do Produto</label>
+                                    <div class="space-y-2">
+                                        <input type="text" id="prod-img-url" oninput="updateLiveProductPreview()" placeholder="Cole o link (URL) da imagem..." class="w-full px-3 py-2 border border-gray-300 rounded-xl text-xs focus:border-shopee focus:outline-none">
+                                        
+                                        <label class="block cursor-pointer bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-bold py-2.5 px-3 rounded-xl text-center transition border border-dashed border-gray-300">
+                                            <i class="fa-solid fa-camera text-shopee mr-1"></i> Tirar Foto ou Escolher da Galeria
+                                            <input type="file" id="prod-img-file" accept="image/*" onchange="handleImageUpload(event)" class="hidden">
+                                        </label>
+
+                                        <div>
+                                            <span class="text-[10px] text-gray-400 font-semibold block mb-1">Ou toque para escolher foto pronta em HD:</span>
+                                            <div class="flex gap-1.5 flex-wrap">
+                                                <button type="button" onclick="setQuickImage('https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=450&q=80', 'Eletrônicos')" class="text-[11px] bg-orange-50 hover:bg-orange-100 text-shopee font-semibold px-2 py-1 rounded-lg border border-orange-200">🎧 Fone</button>
+                                                <button type="button" onclick="setQuickImage('https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=450&q=80', 'Eletrônicos')" class="text-[11px] bg-orange-50 hover:bg-orange-100 text-shopee font-semibold px-2 py-1 rounded-lg border border-orange-200">⌚ Relógio</button>
+                                                <button type="button" onclick="setQuickImage('https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=450&q=80', 'Moda')" class="text-[11px] bg-orange-50 hover:bg-orange-100 text-shopee font-semibold px-2 py-1 rounded-lg border border-orange-200">👟 Tênis</button>
+                                                <button type="button" onclick="setQuickImage('https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=450&q=80', 'Eletrônicos')" class="text-[11px] bg-orange-50 hover:bg-orange-100 text-shopee font-semibold px-2 py-1 rounded-lg border border-orange-200">📱 Celular</button>
+                                                <button type="button" onclick="setQuickImage('https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=450&q=80', 'Brinquedos')" class="text-[11px] bg-orange-50 hover:bg-orange-100 text-shopee font-semibold px-2 py-1 rounded-lg border border-orange-200">🎮 Controle</button>
+                                                <button type="button" onclick="setQuickImage('https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=450&q=80', 'Comidas & Doces')" class="text-[11px] bg-orange-50 hover:bg-orange-100 text-shopee font-semibold px-2 py-1 rounded-lg border border-orange-200">🍔 Hambúrguer</button>
+                                                <button type="button" onclick="setQuickImage('https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=450&q=80', 'Moda')" class="text-[11px] bg-orange-50 hover:bg-orange-100 text-shopee font-semibold px-2 py-1 rounded-lg border border-orange-200">👕 Camiseta</button>
+                                                <button type="button" onclick="setQuickImage('https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=450&q=80', 'Comidas & Doces')" class="text-[11px] bg-orange-50 hover:bg-orange-100 text-shopee font-semibold px-2 py-1 rounded-lg border border-orange-200">🍨 Sorvete</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-[11px] font-extrabold text-gray-600 uppercase mb-1">Descrição</label>
+                                    <textarea id="prod-desc" rows="2" placeholder="Ex: Produto oficial com envio imediato!" class="w-full px-3 py-2 border border-gray-300 rounded-xl text-xs focus:border-shopee focus:outline-none"></textarea>
+                                </div>
+
+                                <button type="submit" id="save-product-submit-btn" class="w-full shopee-gradient hover:opacity-95 text-white font-extrabold py-3 rounded-xl shadow-md transition flex items-center justify-center gap-2 text-sm">
+                                    <i class="fa-solid fa-check"></i> Publicar Produto na Loja
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Coluna Direita: Preview ao Vivo + Lista de Produtos Cadastrados -->
+                    <div class="lg:col-span-6 space-y-5">
+                        <!-- Preview ao Vivo do Card -->
+                        <div class="bg-white rounded-2xl p-4 shadow-xs border border-orange-100">
+                            <span class="text-[11px] font-extrabold uppercase text-shopee tracking-wider block mb-2.5 flex items-center gap-1.5">
+                                <i class="fa-solid fa-eye"></i> Preview ao Vivo (Como seus amigos vão ver):
+                            </span>
+                            <div class="max-w-[210px] mx-auto bg-white rounded-xl overflow-hidden shadow-md border border-gray-100">
+                                <div class="relative aspect-square bg-gray-100">
+                                    <img id="live-card-img" src="https://placehold.co/400x400/ee4d2d/ffffff?text=Foto+Produto" class="w-full h-full object-cover">
+                                    <span id="live-card-badge" class="absolute top-2 left-0 bg-shopee text-white text-[9px] font-black px-2 py-0.5 rounded-r uppercase">Indicado</span>
+                                    <span id="live-card-discount" class="absolute top-0 right-0 bg-yellow-300 text-shopee text-[10px] font-black px-1.5 py-1 rounded-bl-lg leading-none text-center">-30%<br><span class="text-[8px] text-gray-800">OFF</span></span>
+                                </div>
+                                <div class="p-2.5">
+                                    <p id="live-card-name" class="text-xs font-medium text-gray-800 line-clamp-2">Nome do Produto Aparece Aqui</p>
+                                    <div class="flex items-baseline gap-1.5 mt-1">
+                                        <span id="live-card-price" class="text-shopee font-black text-base">R$ 59,90</span>
+                                        <span id="live-card-old-price" class="text-[10px] text-gray-400 line-through">R$ 89,90</span>
+                                    </div>
+                                    <div class="mt-2 bg-shopee-orangeLight text-shopee border border-shopee/50 font-extrabold py-1.5 rounded-lg text-[11px] text-center">
+                                        + Adicionar
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Lista de Produtos Cadastrados -->
+                        <div class="bg-white rounded-2xl p-5 shadow-xs border border-gray-100">
+                            <div class="flex items-center justify-between border-b pb-3 mb-4">
+                                <h3 class="text-base sm:text-lg font-extrabold text-gray-800 flex items-center gap-2">
+                                    <i class="fa-solid fa-boxes-stacked text-shopee"></i> Produtos na Vitrine
+                                </h3>
+                                <span id="admin-prod-count" class="text-xs font-bold bg-orange-50 text-shopee px-2.5 py-1 rounded-full">0 produtos</span>
+                            </div>
+
+                            <div id="admin-products-list" class="divide-y divide-gray-100">
+                                <!-- Lista de produtos do admin -->
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- ==================== BARRA DE NAVEGAÇÃO INFERIOR MOBILE-FIRST ==================== -->
+    <nav id="mobile-bottom-nav" class="md:hidden fixed bottom-0 inset-x-0 bg-white border-t border-gray-200 z-40 hidden justify-around items-center h-16 px-2 shadow-[0_-4px_15px_rgba(0,0,0,0.05)]">
+        <!-- Itens preenchidos dinamicamente conforme Cliente ou Admin -->
+    </nav>
+
+    <!-- ==================== DRAWER LATERAL DO CARRINHO & CHECKOUT ==================== -->
+    <div id="cart-drawer" class="fixed inset-0 bg-black/55 z-50 hidden justify-end backdrop-blur-xs">
+        <div class="bg-white w-full max-w-md h-full flex flex-col shadow-2xl">
+            <!-- Cabeçalho Carrinho -->
+            <div class="p-4 border-b flex items-center justify-between shopee-gradient text-white shrink-0">
+                <h3 class="font-extrabold text-lg flex items-center gap-2">
+                    <i class="fa-solid fa-cart-shopping"></i> Carrinho & Checkout
+                </h3>
+                <button onclick="toggleCartDrawer()" class="w-8 h-8 hover:bg-white/20 rounded-full flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Conteúdo Rolável do Carrinho -->
+            <div class="flex-1 overflow-y-auto p-4 space-y-4">
+                <div id="cart-items-container" class="space-y-2.5"></div>
+
+                <!-- Opções de Cupom, Moedas, Endereço e Pagamento -->
+                <div id="checkout-fields-box" class="hidden space-y-3 pt-2 border-t border-gray-100">
+                    <!-- Cupom Shopee -->
+                    <div class="bg-orange-50/70 p-3 rounded-xl border border-orange-100">
+                        <label class="block text-[11px] font-extrabold text-shopee uppercase mb-1.5 flex items-center gap-1">
+                            <i class="fa-solid fa-ticket"></i> Cupom Shopee
+                        </label>
+                        <div class="flex gap-2">
+                            <input type="text" id="coupon-input" placeholder="SHOPEE10, MEGA20 ou FRETEGRATIS" class="flex-1 px-3 py-2 border border-orange-200 rounded-lg text-xs uppercase font-mono bg-white focus:outline-none focus:border-shopee">
+                            <button type="button" onclick="applyCouponCode()" class="bg-shopee hover:bg-shopee-dark text-white font-bold px-3.5 py-2 rounded-lg text-xs transition">
+                                Aplicar
+                            </button>
+                        </div>
+                        <p id="applied-coupon-msg" class="hidden text-[11px] text-teal-700 font-bold mt-1.5 flex items-center gap-1">
+                            <i class="fa-solid fa-circle-check"></i> <span>Cupom aplicado!</span>
+                        </p>
+                    </div>
+
+                    <!-- Toggle Usar Moedas Shopee -->
+                    <div class="bg-amber-50/80 p-3 rounded-xl border border-amber-200 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-coins text-amber-500 text-base"></i>
+                            <div>
+                                <span class="text-xs font-extrabold text-gray-800 block">Usar <span id="cart-available-coins">50</span> Moedas Shopee</span>
+                                <span class="text-[10px] text-amber-700 font-semibold">Desconto de R$ <span id="cart-coins-value">5,00</span></span>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="use-coins-toggle" onchange="updateCartUI()" class="sr-only peer">
+                            <div class="w-10 h-5 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
+                        </label>
+                    </div>
+
+                    <!-- Endereço & Pagamento -->
+                    <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 space-y-2.5">
+                        <div>
+                            <label class="block text-[11px] font-extrabold text-gray-600 uppercase mb-1">
+                                <i class="fa-solid fa-location-dot text-shopee"></i> Endereço de Entrega
+                            </label>
+                            <input type="text" id="checkout-address" placeholder="Ex: Rua das Flores, 120 - Centro" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs bg-white focus:border-shopee focus:outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] font-extrabold text-gray-600 uppercase mb-1">
+                                <i class="fa-solid fa-wallet text-shopee"></i> Método de Pagamento
+                            </label>
+                            <select id="checkout-payment" onchange="togglePaymentPreview()" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs bg-white focus:border-shopee focus:outline-none font-semibold">
+                                <option value="Pix Instantâneo">Pix Instantâneo (Aprovação na Hora)</option>
+                                <option value="Cartão de Crédito Shopee">Cartão de Crédito Shopee (10x sem juros)</option>
+                                <option value="Dinheiro na Entrega">Dinheiro na Entrega</option>
+                            </select>
+                        </div>
+
+                        <!-- QR Code Pix Interativo com Copiar Código -->
+                        <div id="pix-qr-box" class="bg-white p-3 rounded-xl border border-teal-200 space-y-2">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 bg-gray-900 text-white rounded-lg flex items-center justify-center text-2xl shrink-0 relative overflow-hidden">
+                                    <i class="fa-solid fa-qrcode"></i>
+                                    <span class="absolute inset-x-0 top-0 h-0.5 bg-teal-400 animate-ping"></span>
+                                </div>
+                                <div class="text-[11px]">
+                                    <span class="font-extrabold text-teal-700 block">Pix Copia e Cola Pronto!</span>
+                                    <span class="text-gray-500">Aprovação imediata ao confirmar o pedido.</span>
+                                </div>
+                            </div>
+                            <button type="button" onclick="copyPixCode()" class="w-full bg-teal-50 hover:bg-teal-100 text-teal-700 border border-teal-200 font-bold py-1.5 rounded-lg text-[11px] transition flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-copy"></i> Copiar Chave Pix Simulada
+                            </button>
+                        </div>
+
+                        <!-- Visualização Cartão de Crédito -->
+                        <div id="card-preview-box" class="hidden bg-gradient-to-r from-gray-900 via-gray-800 to-shopee-dark text-white p-3.5 rounded-xl shadow-sm">
+                            <div class="flex justify-between items-center text-[10px] opacity-80 mb-2">
+                                <span>SHOPEEPAY PLATINUM</span>
+                                <i class="fa-brands fa-cc-mastercard text-lg"></i>
+                            </div>
+                            <p class="font-mono text-xs tracking-widest mb-1">•••• •••• •••• 2026</p>
+                            <p id="card-holder-preview" class="text-[10px] uppercase font-bold opacity-90">CLIENTE SHOPEE</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rodapé Resumo e Botão Finalizar -->
+            <div class="p-4 border-t bg-white space-y-2 shrink-0 shadow-[0_-4px_12px_rgba(0,0,0,0.04)]">
+                <div class="flex justify-between items-center text-xs text-gray-500">
+                    <span>Subtotal:</span>
+                    <span id="cart-subtotal-price" class="font-semibold text-gray-700">R$ 0,00</span>
+                </div>
+                <div id="cart-discount-row" class="hidden justify-between items-center text-xs text-teal-600 font-bold">
+                    <span>Desconto Cupom:</span>
+                    <span id="cart-discount-price">- R$ 0,00</span>
+                </div>
+                <div id="cart-coins-discount-row" class="hidden justify-between items-center text-xs text-amber-600 font-bold">
+                    <span>Desconto Moedas Shopee:</span>
+                    <span id="cart-coins-discount-price">- R$ 0,00</span>
+                </div>
+                <div class="flex justify-between items-center text-xs text-gray-500">
+                    <span>Frete Shopee Xpress:</span>
+                    <span class="text-teal-600 font-extrabold">GRÁTIS</span>
+                </div>
+                <div class="flex justify-between items-center text-lg font-black text-gray-800 pt-1 border-t">
+                    <span>Total:</span>
+                    <span id="cart-total-price" class="text-shopee">R$ 0,00</span>
+                </div>
+                <button onclick="checkoutOrder()" id="checkout-btn" class="w-full shopee-gradient hover:opacity-95 disabled:opacity-40 disabled:cursor-not-allowed text-white font-extrabold py-3.5 rounded-xl shadow-lg shadow-orange-500/25 transition flex items-center justify-center gap-2 text-sm sm:text-base">
+                    <i class="fa-solid fa-bag-shopping"></i> Fazer Pedido Agora
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== SCRIPT DA APLICAÇÃO COM FIREBASE TEMPO REAL ==================== -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, addDoc, updateDoc, deleteDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Configuração do Ambiente Firebase
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let app = null;
+        let db = null;
+        let auth = null;
+        let firebaseUser = null;
+        let isCloudConnected = false;
+
+        let unsubProducts = null;
+        let unsubOrders = null;
+
+        // Estado Global
+        let storeRoom = 'oficial';
+        let currentUser = null;
+        let isAdmin = false;
+        let adminPreviewMode = false;
+        let activeClientTab = 'store';
+        let activeAdminTab = 'admin-orders';
+        let selectedCategory = 'Todos';
+        let onlyFavoritesFilter = false;
+        let clientOrderFilter = 'all';
+        let adminOrderFilter = 'all';
+        let userCoins = 50;
+        let dailyCoinsClaimed = false;
+        let appliedCoupon = null;
+
+        let products = [];
+        let orders = [];
+        let cart = [];
+        let favorites = [];
+        let notificationsLog = [];
+        let unreadNotifsCount = 0;
+        let uploadedBase64Image = '';
+
+        // Modal de Produto & Avaliação
+        let selectedProductVariant = 'Padrão Oficial';
+        let ratingOrderId = null;
+        let selectedStarsCount = 5;
+
+        // Carrossel Hero
+        let currentHeroSlide = 0;
+        const HERO_SLIDES = [
+            {
+                badge: '11.11 MEGA LIQUIDAÇÃO',
+                title: 'Frete Grátis Sem Mínimo + Cupons VIP',
+                subtitle: 'Compre com seus amigos e veja o rastreamento SPX atualizar na hora!',
+                bg: 'linear-gradient(135deg, #ee4d2d 0%, #ff5722 55%, #ff8a50 100%)',
+                ctaText: 'Pegar Cupom 10%',
+                ctaAction: () => claimCoupon('SHOPEE10')
+            },
+            {
+                badge: 'CLUBE MOEDAS SHOPEE',
+                title: 'Ganhe +50 Moedas no Check-in Diário!',
+                subtitle: 'Troque suas moedas por descontos reais direto no carrinho de compras.',
+                bg: 'linear-gradient(135deg, #d97706 0%, #f59e0b 55%, #fbbf24 100%)',
+                ctaText: 'Resgatar Moedas',
+                ctaAction: () => openCoinsModal()
+            },
+            {
+                badge: 'SHOPEE XPRESS AO VIVO',
+                title: 'Entrega Super Rápida Rastreada',
+                subtitle: 'Acompanhe o pacote saindo do centro de distribuição até suas mãos.',
+                bg: 'linear-gradient(135deg, #0d9488 0%, #14b8a6 55%, #2dd4bf 100%)',
+                ctaText: 'Ver Meus Pedidos',
+                ctaAction: () => switchTab('my-orders')
+            }
+        ];
+
+        // Controle para alertas sonoros em tempo real
+        let initialOrdersLoaded = false;
+        let knownOrderIds = new Set();
+        let knownOrderSignatures = new Map();
+
+        const CATEGORIES = [
+            { id: 'Todos', label: 'Todos', icon: 'fa-border-all' },
+            { id: 'Eletrônicos', label: 'Eletrônicos', icon: 'fa-mobile-screen' },
+            { id: 'Moda', label: 'Moda', icon: 'fa-shirt' },
+            { id: 'Comidas & Doces', label: 'Comidas', icon: 'fa-burger' },
+            { id: 'Brinquedos', label: 'Games', icon: 'fa-gamepad' },
+            { id: 'Casa', label: 'Casa', icon: 'fa-couch' },
+            { id: 'Outros', label: 'Outros', icon: 'fa-sparkles' }
+        ];
+
+        const DEFAULT_PRODUCTS = [
+            {
+                name: 'Fone de Ouvido Bluetooth Pro Max Cancelamento de Ruído',
+                price: 89.90,
+                oldPrice: 139.90,
+                category: 'Eletrônicos',
+                badge: 'Oficial',
+                image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80',
+                description: 'Som cristalino com graves potentes e bateria de 24 horas. Acompanha cabo carregador rápido.',
+                sold: 142,
+                createdAt: Date.now() - 4000
+            },
+            {
+                name: 'Smartwatch Esportivo Ultra Resistente + Pulseira Extra',
+                price: 129.50,
+                oldPrice: 199.00,
+                category: 'Eletrônicos',
+                badge: 'Relâmpago',
+                image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&q=80',
+                description: 'Monitora batimentos, passos, notificações do WhatsApp e chamadas em tempo real.',
+                sold: 89,
+                createdAt: Date.now() - 3000
+            },
+            {
+                name: 'Tênis Esportivo Corrida Leve Conforto Total',
+                price: 149.90,
+                oldPrice: 219.90,
+                category: 'Moda',
+                badge: 'Indicado',
+                image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&q=80',
+                description: 'Ideal para caminhada, academia e dia a dia. Super leve, macio e respirável.',
+                sold: 215,
+                createdAt: Date.now() - 2000
+            },
+            {
+                name: 'Combo Hambúrguer Artesanal Duplo Cheddar + Fritas',
+                price: 34.90,
+                oldPrice: 49.90,
+                category: 'Comidas & Doces',
+                badge: 'Top Vendas',
+                image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&q=80',
+                description: 'Entrega quentinha na hora! Pão brioche, dois blends suculentos e molho especial.',
+                sold: 318,
+                createdAt: Date.now() - 1000
+            }
+        ];
+
+        // ==================== WEB AUDIO API ====================
+        function playNotificationChime(type = 'order') {
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) return;
+                const ctx = new AudioCtx();
+                const now = ctx.currentTime;
+
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                if (type === 'order') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(587.33, now);
+                    osc.frequency.setValueAtTime(880.00, now + 0.12);
+                    gain.gain.setValueAtTime(0.18, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+                    osc.start(now);
+                    osc.stop(now + 0.45);
+                } else {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.setValueAtTime(659.25, now + 0.1);
+                    osc.frequency.setValueAtTime(783.99, now + 0.2);
+                    gain.gain.setValueAtTime(0.14, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+                    osc.start(now);
+                    osc.stop(now + 0.4);
+                }
+            } catch (e) {}
+        }
+
+        // ==================== CARROSSEL HERO & CRONÔMETRO ====================
+        function renderHeroCarousel() {
+            const track = document.getElementById('hero-carousel-track');
+            const dots = document.getElementById('hero-carousel-dots');
+            if (!track || !dots) return;
+
+            const slide = HERO_SLIDES[currentHeroSlide];
+            track.innerHTML = `
+                <div style="background: ${slide.bg}" class="p-5 sm:p-7 text-white relative overflow-hidden min-h-[145px] sm:min-h-[165px] flex flex-col justify-between">
+                    <div class="absolute right-0 top-0 bottom-0 w-1/3 bg-white/10 skew-x-12 pointer-events-none"></div>
+                    <div class="relative z-10 max-w-lg">
+                        <span class="bg-black/25 backdrop-blur-xs text-white text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full tracking-wider">
+                            ${slide.badge}
+                        </span>
+                        <h2 class="text-lg sm:text-2xl font-black tracking-tight mt-2 leading-tight">${slide.title}</h2>
+                        <p class="text-white/90 text-xs sm:text-sm mt-1">${slide.subtitle}</p>
+                    </div>
+                    <div class="relative z-10 mt-3">
+                        <button onclick="triggerHeroSlideAction()" class="bg-white text-gray-900 hover:bg-gray-100 font-extrabold px-4 py-1.5 rounded-xl text-xs shadow transition">
+                            ${slide.ctaText} <i class="fa-solid fa-arrow-right ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            dots.innerHTML = HERO_SLIDES.map((_, idx) => `
+                <button onclick="goToHeroSlide(${idx})" class="h-1.5 rounded-full transition-all ${idx === currentHeroSlide ? 'w-5 bg-white' : 'w-1.5 bg-white/50'}"></button>
+            `).join('');
+        }
+
+        window.triggerHeroSlideAction = function() {
+            HERO_SLIDES[currentHeroSlide].ctaAction();
+        };
+
+        window.nextHeroSlide = function() {
+            currentHeroSlide = (currentHeroSlide + 1) % HERO_SLIDES.length;
+            renderHeroCarousel();
+        };
+
+        window.prevHeroSlide = function() {
+            currentHeroSlide = (currentHeroSlide - 1 + HERO_SLIDES.length) % HERO_SLIDES.length;
+            renderHeroCarousel();
+        };
+
+        window.goToHeroSlide = function(idx) {
+            currentHeroSlide = idx;
+            renderHeroCarousel();
+        };
+
+        function startTimers() {
+            let totalSeconds = (2 * 3600) + (45 * 60) + 59;
+            setInterval(() => {
+                totalSeconds = totalSeconds > 0 ? totalSeconds - 1 : 9959;
+                const h = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+                const m = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+                const s = String(totalSeconds % 60).padStart(2, '0');
+                const elH = document.getElementById('timer-h');
+                const elM = document.getElementById('timer-m');
+                const elS = document.getElementById('timer-s');
+                if (elH) elH.textContent = h;
+                if (elM) elM.textContent = m;
+                if (elS) elS.textContent = s;
+            }, 1000);
+
+            setInterval(() => {
+                nextHeroSlide();
+            }, 5500);
+        }
+
+        // ==================== FIREBASE CLOUD SYNC ====================
+        async function initFirebaseCloud() {
+            if (!firebaseConfig) {
+                updateConnectionUI(false, 'Modo Offline');
+                return;
+            }
+
+            try {
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                if (initialAuthToken) {
+                    const cred = await signInWithCustomToken(auth, initialAuthToken);
+                    firebaseUser = cred.user;
+                } else {
+                    const cred = await signInAnonymously(auth);
+                    firebaseUser = cred.user;
+                }
+
+                isCloudConnected = true;
+                updateConnectionUI(true, `Ao Vivo • ${storeRoom}`);
+                startRealtimeListeners();
+            } catch (error) {
+                console.error('Erro Firebase:', error);
+                updateConnectionUI(false, 'Sem conexão');
+            }
+        }
+
+        function updateConnectionUI(connected, labelText) {
+            const loginStatus = document.getElementById('login-cloud-status');
+            const onlineDot = document.getElementById('online-dot');
+            const onlineText = document.getElementById('online-status-text');
+
+            if (connected) {
+                if (loginStatus) {
+                    loginStatus.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> <span class="text-emerald-600 font-bold">Loja Online</span>`;
+                }
+                if (onlineDot) onlineDot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
+                if (onlineText) onlineText.textContent = labelText;
+            } else {
+                if (loginStatus) {
+                    loginStatus.innerHTML = `<span class="w-2 h-2 rounded-full bg-red-500"></span> <span class="text-red-500">${labelText}</span>`;
+                }
+                if (onlineDot) onlineDot.className = 'w-2 h-2 rounded-full bg-red-400';
+                if (onlineText) onlineText.textContent = labelText;
+            }
+        }
+
+        function pushNotification(title, desc, icon = 'fa-bell') {
+            notificationsLog.unshift({
+                title,
+                desc,
+                icon,
+                time: getFormattedNow()
+            });
+            if (notificationsLog.length > 20) notificationsLog.pop();
+            unreadNotifsCount += 1;
+
+            const badge = document.getElementById('notif-badge');
+            if (badge) {
+                badge.textContent = unreadNotifsCount;
+                badge.classList.remove('hidden');
+            }
+        }
+
+        window.openNotificationsModal = function() {
+            unreadNotifsCount = 0;
+            const badge = document.getElementById('notif-badge');
+            if (badge) badge.classList.add('hidden');
+
+            const list = document.getElementById('notifications-list');
+            if (notificationsLog.length === 0) {
+                list.innerHTML = `<p class="text-xs text-gray-400 text-center py-8">Nenhuma notificação nova no momento.</p>`;
+            } else {
+                list.innerHTML = notificationsLog.map(n => `
+                    <div class="bg-gray-50 p-3 rounded-2xl border border-gray-100 flex items-start gap-2.5">
+                        <div class="w-8 h-8 rounded-full bg-orange-100 text-shopee flex items-center justify-center shrink-0 text-xs">
+                            <i class="fa-solid ${n.icon}"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-xs font-extrabold text-gray-800">${escapeHtml(n.title)}</p>
+                            <p class="text-[11px] text-gray-600 mt-0.5">${escapeHtml(n.desc)}</p>
+                            <span class="text-[9px] text-gray-400 block mt-1">${n.time}</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            toggleModal('notifications-modal');
+        };
+
+        function startRealtimeListeners() {
+            if (!db || !firebaseUser) return;
+
+            if (unsubProducts) unsubProducts();
+            if (unsubOrders) unsubOrders();
+
+            initialOrdersLoaded = false;
+            knownOrderIds.clear();
+            knownOrderSignatures.clear();
+
+            const productsRef = collection(db, 'artifacts', appId, 'public', 'data', `shopeesim_${storeRoom}_products`);
+            const ordersRef = collection(db, 'artifacts', appId, 'public', 'data', `shopeesim_${storeRoom}_orders`);
+
+            unsubProducts = onSnapshot(productsRef, async (snapshot) => {
+                if (snapshot.empty) {
+                    for (const item of DEFAULT_PRODUCTS) {
+                        await addDoc(productsRef, item);
+                    }
+                    return;
+                }
+
+                const list = [];
+                snapshot.forEach(docSnap => list.push({ id: docSnap.id, ...docSnap.data() }));
+                list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                products = list;
+
+                renderStoreProducts();
+                renderAdminProducts();
+                updateAdminStats();
+            }, (err) => console.error('Erro listener produtos:', err));
+
+            unsubOrders = onSnapshot(ordersRef, (snapshot) => {
+                const list = [];
+                snapshot.forEach(docSnap => list.push({ id: docSnap.id, ...docSnap.data() }));
+                list.sort((a, b) => (b.createdTimestamp || 0) - (a.createdTimestamp || 0));
+
+                if (initialOrdersLoaded) {
+                    list.forEach(ord => {
+                        const sig = `${ord.currentStatus}_${(ord.timeline || []).length}`;
+                        if (!knownOrderIds.has(ord.id)) {
+                            if (isAdmin && !adminPreviewMode) {
+                                playNotificationChime('order');
+                                showToast(`Novo pedido de ${ord.customerName} (R$ ${formatCurrency(ord.total)})!`, 'success');
+                                pushNotification(`Novo Pedido de ${ord.customerName}`, `Total: R$ ${formatCurrency(ord.total)} • ${ord.trackingCode}`, 'fa-bag-shopping');
+                            }
+                        } else if (knownOrderSignatures.get(ord.id) !== sig) {
+                            if (currentUser && ord.customerName.toLowerCase() === currentUser.toLowerCase()) {
+                                playNotificationChime('tracking');
+                                showToast(`Rastreamento SPX: ${ord.currentStatus}`, 'info');
+                                pushNotification(`Atualização SPX (${ord.trackingCode})`, ord.currentStatus, 'fa-truck-fast');
+                            }
+                        }
+                    });
+                }
+
+                knownOrderIds.clear();
+                knownOrderSignatures.clear();
+                list.forEach(ord => {
+                    knownOrderIds.add(ord.id);
+                    knownOrderSignatures.set(ord.id, `${ord.currentStatus}_${(ord.timeline || []).length}`);
+                });
+                initialOrdersLoaded = true;
+
+                orders = list;
+                renderClientOrders();
+                renderAdminOrders();
+                updateAdminStats();
+                renderMobileBottomNav();
+            }, (err) => console.error('Erro listener pedidos:', err));
+        }
+
+        // ==================== INICIALIZAÇÃO ====================
+        window.onload = function() {
+            const roomInput = document.getElementById('room-code-input');
+            if (roomInput) roomInput.value = storeRoom;
+
+            renderHeroCarousel();
+            renderCategoryBar();
+            startTimers();
+            restoreSession();
+            initFirebaseCloud();
+        };
+
+        // ==================== LOGIN, SALA E SESSÃO ====================
+        window.changeStoreRoom = function() {
+            const input = document.getElementById('room-code-input');
+            const rawRoom = (input.value || '').trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
+            if (!rawRoom) {
+                showToast('Digite um nome válido para a sala.', 'error');
+                return;
+            }
+            storeRoom = rawRoom;
+            input.value = storeRoom;
+            updateConnectionUI(isCloudConnected, `Ao Vivo • ${storeRoom}`);
+            if (isCloudConnected) startRealtimeListeners();
+            toggleModal('help-modal');
+            showToast(`Conectado à loja "${storeRoom}"!`, 'success');
+        };
+
+        window.handleLogin = function(e) {
+            e.preventDefault();
+            const rawInput = document.getElementById('username-input').value.trim();
+            if (!rawInput) return;
+
+            const adminTagRegex = /\[admloja\]/i;
+            if (adminTagRegex.test(rawInput)) {
+                isAdmin = true;
+                const cleanName = rawInput.replace(adminTagRegex, '').trim();
+                currentUser = cleanName || 'Vendedor Oficial';
+                showToast(`Shopee Seller Center desbloqueado!`, 'success');
+            } else {
+                isAdmin = false;
+                currentUser = rawInput;
+                userCoins = 50;
+                dailyCoinsClaimed = false;
+                showToast(`Bem-vindo(a), ${currentUser}! +50 Moedas Shopee`, 'success');
+            }
+
+            adminPreviewMode = false;
+            saveSession();
+            enterApp();
+        };
+
+        function saveSession() {
+            sessionStorage.setItem('shopeesim_session_v4', JSON.stringify({
+                currentUser,
+                isAdmin,
+                userCoins,
+                dailyCoinsClaimed,
+                favorites
+            }));
+        }
+
+        function restoreSession() {
+            const saved = sessionStorage.getItem('shopeesim_session_v4');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                currentUser = parsed.currentUser;
+                isAdmin = parsed.isAdmin;
+                userCoins = parsed.userCoins ?? 50;
+                dailyCoinsClaimed = parsed.dailyCoinsClaimed || false;
+                favorites = parsed.favorites || [];
+                enterApp();
+            }
+        }
+
+        function enterApp() {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('main-app').classList.remove('hidden');
+            document.getElementById('main-app').classList.add('flex');
+            document.getElementById('mobile-bottom-nav').classList.remove('hidden');
+            document.getElementById('mobile-bottom-nav').classList.add('flex');
+
+            const cardHolder = document.getElementById('card-holder-preview');
+            if (cardHolder) cardHolder.textContent = (currentUser || 'CLIENTE SHOPEE').toUpperCase();
+
+            updateCoinsDisplay();
+            updateRoleLayout();
+            refreshUI();
+        }
+
+        window.logout = function() {
+            sessionStorage.removeItem('shopeesim_session_v4');
+            currentUser = null;
+            isAdmin = false;
+            adminPreviewMode = false;
+            cart = [];
+            appliedCoupon = null;
+            document.getElementById('username-input').value = '';
+            document.getElementById('main-app').classList.add('hidden');
+            document.getElementById('main-app').classList.remove('flex');
+            document.getElementById('mobile-bottom-nav').classList.add('hidden');
+            document.getElementById('mobile-bottom-nav').classList.remove('flex');
+            document.getElementById('login-screen').classList.remove('hidden');
+        };
+
+        window.toggleAdminPreview = function() {
+            if (!isAdmin) return;
+            adminPreviewMode = !adminPreviewMode;
+            updateRoleLayout();
+            refreshUI();
+            showToast(adminPreviewMode ? 'Testando visão do cliente' : 'De volta ao Seller Center', 'info');
+        };
+
+        window.handleLogoClick = function() {
+            if (isAdmin && !adminPreviewMode) {
+                switchAdminTab('admin-orders');
+            } else {
+                switchTab('store');
+            }
+        };
+
+        // ==================== MOEDAS SHOPEE & CHECK-IN ====================
+        function updateCoinsDisplay() {
+            const el = document.getElementById('user-coins-display');
+            const modalEl = document.getElementById('modal-coins-balance');
+            const cartCoinsEl = document.getElementById('cart-available-coins');
+            const cartCoinsVal = document.getElementById('cart-coins-value');
+
+            if (el) el.textContent = userCoins;
+            if (modalEl) modalEl.textContent = userCoins;
+            if (cartCoinsEl) cartCoinsEl.textContent = userCoins;
+            if (cartCoinsVal) cartCoinsVal.textContent = formatCurrency(userCoins * 0.10);
+        }
+
+        window.openCoinsModal = function() {
+            updateCoinsDisplay();
+            const btn = document.getElementById('claim-daily-coins-btn');
+            if (dailyCoinsClaimed) {
+                btn.disabled = true;
+                btn.className = 'w-full bg-gray-200 text-gray-500 font-bold py-3 rounded-xl text-sm cursor-not-allowed';
+                btn.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Recompensa de Hoje Resgatada!';
+            }
+            toggleModal('coins-modal');
+        };
+
+        window.claimDailyCoins = function() {
+            if (dailyCoinsClaimed) return;
+            dailyCoinsClaimed = true;
+            userCoins += 50;
+            updateCoinsDisplay();
+            updateCartUI();
+            saveSession();
+
+            const anchor = document.getElementById('coin-animation-anchor');
+            if (anchor) {
+                anchor.innerHTML = `<div class="coin-fly text-amber-500 font-black text-2xl flex items-center gap-1"><i class="fa-solid fa-coins"></i> +50!</div>`;
+            }
+            playNotificationChime('tracking');
+            showToast('Você resgatou +50 Moedas Shopee!', 'success');
+
+            const btn = document.getElementById('claim-daily-coins-btn');
+            btn.disabled = true;
+            btn.className = 'w-full bg-gray-200 text-gray-500 font-bold py-3 rounded-xl text-sm cursor-not-allowed';
+            btn.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Recompensa de Hoje Resgatada!';
+        };
+
+        function updateRoleLayout() {
+            const roleBadge = document.getElementById('role-badge');
+            const switchBtn = document.getElementById('switch-view-btn');
+            const clientNav = document.getElementById('client-nav');
+            const adminNav = document.getElementById('admin-nav');
+            const clientView = document.getElementById('client-view');
+            const adminView = document.getElementById('admin-view');
+            const searchWrapper = document.getElementById('header-search-wrapper');
+            const coinsPill = document.getElementById('coins-wallet-pill');
+
+            if (isAdmin) {
+                switchBtn.classList.remove('hidden');
+            } else {
+                switchBtn.classList.add('hidden');
+            }
+
+            if (isAdmin && !adminPreviewMode) {
+                roleBadge.innerHTML = '<i class="fa-solid fa-crown"></i> SELLER CENTER';
+                roleBadge.className = 'bg-yellow-400 text-gray-900 px-2 py-0.5 rounded font-black flex items-center gap-1';
+                switchBtn.innerHTML = '<i class="fa-solid fa-eye"></i> Ver Loja';
+
+                searchWrapper.classList.add('hidden');
+                coinsPill.classList.add('hidden');
+                clientNav.classList.add('hidden');
+                adminNav.classList.remove('hidden');
+                adminNav.classList.add('flex');
+
+                clientView.classList.add('hidden');
+                adminView.classList.remove('hidden');
+            } else {
+                roleBadge.innerHTML = `<i class="fa-solid fa-user"></i> ${escapeHtml(currentUser)}`;
+                roleBadge.className = 'bg-white/20 text-white px-2 py-0.5 rounded font-bold flex items-center gap-1';
+                if (isAdmin) {
+                    switchBtn.innerHTML = '<i class="fa-solid fa-screwdriver-wrench"></i> Painel';
+                }
+
+                searchWrapper.classList.remove('hidden');
+                coinsPill.classList.remove('hidden');
+                adminNav.classList.add('hidden');
+                adminNav.classList.remove('flex');
+                clientNav.classList.remove('hidden');
+                clientNav.classList.add('flex');
+
+                adminView.classList.add('hidden');
+                clientView.classList.remove('hidden');
+            }
+
+            renderMobileBottomNav();
+        }
+
+        function refreshUI() {
+            renderStoreProducts();
+            updateCartUI();
+            renderClientOrders();
+            renderAdminProducts();
+            renderAdminOrders();
+            updateAdminStats();
+        }
+
+        // ==================== BARRA INFERIOR MOBILE ====================
+        function renderMobileBottomNav() {
+            const nav = document.getElementById('mobile-bottom-nav');
+            if (!nav || !currentUser) return;
+
+            if (isAdmin && !adminPreviewMode) {
+                nav.innerHTML = `
+                    <button onclick="switchAdminTab('admin-orders')" class="flex-1 flex flex-col items-center justify-center py-1 ${activeAdminTab === 'admin-orders' ? 'text-shopee font-extrabold' : 'text-gray-400 font-semibold'}">
+                        <i class="fa-solid fa-box-open text-lg"></i>
+                        <span class="text-[10px] mt-0.5">Pedidos (${orders.length})</span>
+                    </button>
+                    <button onclick="switchAdminTab('admin-products')" class="flex-1 flex flex-col items-center justify-center py-1 ${activeAdminTab === 'admin-products' ? 'text-shopee font-extrabold' : 'text-gray-400 font-semibold'}">
+                        <i class="fa-solid fa-circle-plus text-lg"></i>
+                        <span class="text-[10px] mt-0.5">Produtos</span>
+                    </button>
+                    <button onclick="toggleAdminPreview()" class="flex-1 flex flex-col items-center justify-center py-1 text-gray-500 font-semibold">
+                        <i class="fa-solid fa-store text-lg"></i>
+                        <span class="text-[10px] mt-0.5">Ver Vitrine</span>
+                    </button>
+                    <button onclick="logout()" class="flex-1 flex flex-col items-center justify-center py-1 text-gray-400 font-semibold">
+                        <i class="fa-solid fa-user-gear text-lg"></i>
+                        <span class="text-[10px] mt-0.5">Trocar Nome</span>
+                    </button>
+                `;
+            } else {
+                const totalCartItems = cart.reduce((s, i) => s + i.qty, 0);
+                const myOrdersCount = orders.filter(o => (o.customerName || '').toLowerCase() === (currentUser || '').toLowerCase()).length;
+
+                nav.innerHTML = `
+                    <button onclick="switchTab('store')" class="flex-1 flex flex-col items-center justify-center py-1 ${activeClientTab === 'store' ? 'text-shopee font-extrabold' : 'text-gray-400 font-semibold'}">
+                        <i class="fa-solid fa-house text-lg"></i>
+                        <span class="text-[10px] mt-0.5">Início</span>
+                    </button>
+                    <button onclick="toggleCartDrawer()" class="flex-1 flex flex-col items-center justify-center py-1 text-gray-500 font-semibold relative">
+                        <div class="relative">
+                            <i class="fa-solid fa-cart-shopping text-lg"></i>
+                            ${totalCartItems > 0 ? `<span class="absolute -top-1.5 -right-2.5 bg-shopee text-white text-[9px] font-black px-1.5 rounded-full">${totalCartItems}</span>` : ''}
+                        </div>
+                        <span class="text-[10px] mt-0.5">Carrinho</span>
+                    </button>
+                    <button onclick="switchTab('my-orders')" class="flex-1 flex flex-col items-center justify-center py-1 ${activeClientTab === 'my-orders' ? 'text-shopee font-extrabold' : 'text-gray-400 font-semibold'} relative">
+                        <div class="relative">
+                            <i class="fa-solid fa-truck-fast text-lg"></i>
+                            ${myOrdersCount > 0 ? `<span class="absolute -top-1.5 -right-2.5 bg-teal-600 text-white text-[9px] font-black px-1.5 rounded-full">${myOrdersCount}</span>` : ''}
+                        </div>
+                        <span class="text-[10px] mt-0.5">Compras</span>
+                    </button>
+                    <button onclick="logout()" class="flex-1 flex flex-col items-center justify-center py-1 text-gray-400 font-semibold">
+                        <i class="fa-solid fa-user text-lg"></i>
+                        <span class="text-[10px] mt-0.5 truncate max-w-[65px]">${escapeHtml(currentUser)}</span>
+                    </button>
+                `;
+            }
+        }
+
+        // ==================== NAVEGAÇÃO ENTRE ABAS ====================
+        window.switchTab = function(tabName) {
+            activeClientTab = tabName;
+            const storeTab = document.getElementById('tab-store');
+            const ordersTab = document.getElementById('tab-my-orders');
+            const navStore = document.getElementById('nav-store');
+            const navOrders = document.getElementById('nav-my-orders');
+
+            if (tabName === 'store') {
+                storeTab.classList.remove('hidden');
+                ordersTab.classList.add('hidden');
+                navStore.className = 'hidden md:flex px-3 py-2 rounded-xl font-bold text-xs bg-white text-shopee shadow-xs transition items-center gap-1.5';
+                navOrders.className = 'hidden md:flex px-3 py-2 rounded-xl font-bold text-xs text-white hover:bg-white/15 transition items-center gap-1.5 relative';
+            } else {
+                storeTab.classList.add('hidden');
+                ordersTab.classList.remove('hidden');
+                navOrders.className = 'hidden md:flex px-3 py-2 rounded-xl font-bold text-xs bg-white text-shopee shadow-xs transition items-center gap-1.5 relative';
+                navStore.className = 'hidden md:flex px-3 py-2 rounded-xl font-bold text-xs text-white hover:bg-white/15 transition items-center gap-1.5';
+                renderClientOrders();
+            }
+            renderMobileBottomNav();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.switchAdminTab = function(tabName) {
+            activeAdminTab = tabName;
+            const ordersTab = document.getElementById('admin-tab-orders');
+            const productsTab = document.getElementById('admin-tab-products');
+            const navOrders = document.getElementById('nav-admin-orders');
+            const navProducts = document.getElementById('nav-admin-products');
+
+            if (tabName === 'admin-orders') {
+                ordersTab.classList.remove('hidden');
+                productsTab.classList.add('hidden');
+                navOrders.className = 'px-3 py-2 rounded-xl font-bold text-xs bg-white text-shopee shadow-xs transition flex items-center gap-1.5 relative';
+                navProducts.className = 'px-3 py-2 rounded-xl font-bold text-xs text-white hover:bg-white/15 transition flex items-center gap-1.5';
+            } else {
+                ordersTab.classList.add('hidden');
+                productsTab.classList.remove('hidden');
+                navProducts.className = 'px-3 py-2 rounded-xl font-bold text-xs bg-white text-shopee shadow-xs transition flex items-center gap-1.5';
+                navOrders.className = 'px-3 py-2 rounded-xl font-bold text-xs text-white hover:bg-white/15 transition flex items-center gap-1.5 relative';
+            }
+            renderMobileBottomNav();
+        };
+
+        // ==================== CATEGORIAS, FAVORITOS E VITRINE ====================
+        function renderCategoryBar() {
+            const bar = document.getElementById('category-bar');
+            if (!bar) return;
+
+            bar.innerHTML = CATEGORIES.map(cat => {
+                const isSelected = selectedCategory === cat.id && !onlyFavoritesFilter;
+                return `
+                    <button 
+                        onclick="selectCategory('${cat.id}')" 
+                        class="shrink-0 px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${isSelected ? 'shopee-gradient text-white shadow-sm' : 'bg-white hover:bg-orange-50 text-gray-600 hover:text-shopee border border-gray-100'}"
+                    >
+                        <i class="fa-solid ${cat.icon}"></i>
+                        <span>${cat.label}</span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        window.selectCategory = function(catId) {
+            onlyFavoritesFilter = false;
+            selectedCategory = catId;
+            document.getElementById('discover-title-label').innerHTML = `<i class="fa-solid fa-fire"></i> Descobertas do Dia`;
+            renderCategoryBar();
+            renderStoreProducts();
+        };
+
+        window.toggleFavoritesFilter = function() {
+            onlyFavoritesFilter = !onlyFavoritesFilter;
+            const label = document.getElementById('discover-title-label');
+            if (onlyFavoritesFilter) {
+                label.innerHTML = `<i class="fa-solid fa-heart text-rose-500"></i> Meus Favoritos (${favorites.length})`;
+                showToast('Mostrando seus produtos favoritos', 'info');
+            } else {
+                label.innerHTML = `<i class="fa-solid fa-fire"></i> Descobertas do Dia`;
+            }
+            renderCategoryBar();
+            renderStoreProducts();
+        };
+
+        window.toggleProductFavorite = function(prodId) {
+            const idx = favorites.indexOf(prodId);
+            if (idx === -1) {
+                favorites.push(prodId);
+                showToast('Salvo nos seus favoritos!', 'success');
+            } else {
+                favorites.splice(idx, 1);
+                showToast('Removido dos favoritos', 'info');
+            }
+            saveSession();
+            renderStoreProducts();
+        };
+
+        window.claimCoupon = function(code) {
+            appliedCoupon = code;
+            const input = document.getElementById('coupon-input');
+            if (input) input.value = code;
+            updateCartUI();
+            showToast(`Cupom ${code} ativado no carrinho!`, 'success');
+        };
+
+        window.renderStoreProducts = function() {
+            const grid = document.getElementById('store-products-grid');
+            const countLabel = document.getElementById('store-count-label');
+            const searchQuery = (document.getElementById('search-products')?.value || '').toLowerCase();
+
+            const filtered = products.filter(p => {
+                const matchesSearch = p.name.toLowerCase().includes(searchQuery) || (p.description && p.description.toLowerCase().includes(searchQuery));
+                const matchesCategory = selectedCategory === 'Todos' || (p.category || 'Outros') === selectedCategory;
+                const matchesFav = !onlyFavoritesFilter || favorites.includes(p.id);
+                return matchesSearch && matchesCategory && matchesFav;
+            });
+
+            if (countLabel) {
+                countLabel.textContent = `${filtered.length} item(ns)`;
+            }
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full bg-white rounded-2xl p-10 text-center border border-gray-100 mt-3">
+                        <i class="fa-solid fa-box-open text-4xl text-gray-300 mb-3"></i>
+                        <p class="text-gray-600 font-bold text-sm">${onlyFavoritesFilter ? 'Você ainda não favoritou nenhum item' : 'Nenhum produto encontrado'}</p>
+                        <button onclick="selectCategory('Todos')" class="mt-3 text-shopee text-xs font-bold hover:underline">Ver todos os produtos</button>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(prod => {
+                const fallbackImg = `https://placehold.co/400x400/ee4d2d/ffffff?text=${encodeURIComponent(prod.name.substring(0, 14))}`;
+                const oldPrice = prod.oldPrice && prod.oldPrice > prod.price ? prod.oldPrice : (prod.price * 1.35);
+                const discountPct = Math.round(((oldPrice - prod.price) / oldPrice) * 100);
+                const stockBarWidth = Math.min(92, Math.max(35, ((prod.sold || 15) % 80) + 20));
+                const isFav = favorites.includes(prod.id);
+
+                return `
+                    <div class="bg-white rounded-xl overflow-hidden shadow-xs hover:shadow-md transition border border-gray-100 flex flex-col group cursor-pointer" onclick="openProductDetail('${prod.id}')">
+                        <div class="relative aspect-square bg-gray-100 overflow-hidden">
+                            <img 
+                                src="${prod.image || fallbackImg}" 
+                                onerror="this.onerror=null; this.src='${fallbackImg}'"
+                                alt="${escapeHtml(prod.name)}" 
+                                class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                            >
+                            <!-- Tag Indicado / Oficial -->
+                            <span class="absolute top-2 left-0 bg-shopee text-white text-[9px] font-black px-2 py-0.5 rounded-r shadow-xs uppercase tracking-wider">
+                                ${escapeHtml(prod.badge || 'Indicado')}
+                            </span>
+                            <!-- Botão Favoritar -->
+                            <button onclick="event.stopPropagation(); toggleProductFavorite('${prod.id}')" class="absolute bottom-7 right-2 w-7 h-7 rounded-full bg-white/90 hover:bg-white shadow flex items-center justify-center transition ${isFav ? 'text-rose-500 scale-110' : 'text-gray-400'}">
+                                <i class="fa-solid fa-heart text-xs"></i>
+                            </button>
+                            <!-- Tag Desconto -->
+                            ${discountPct > 5 ? `
+                                <span class="absolute top-0 right-0 bg-yellow-300 text-shopee text-[10px] font-black px-1.5 py-1 rounded-bl-lg shadow-2xs leading-none text-center">
+                                    -${discountPct}%<br><span class="text-[8px] text-gray-800">OFF</span>
+                                </span>
+                            ` : ''}
+                            <!-- Selo Frete Grátis -->
+                            <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/55 to-transparent p-1.5 flex items-center justify-between">
+                                <span class="bg-teal-500 text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded">
+                                    FRETE GRÁTIS
+                                </span>
+                                <span class="text-white text-[10px] font-bold flex items-center gap-0.5">
+                                    <i class="fa-solid fa-star text-yellow-300 text-[9px]"></i> 4.9
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="p-2.5 sm:p-3 flex-1 flex flex-col justify-between">
+                            <div>
+                                <h3 class="text-xs sm:text-sm font-medium text-gray-800 line-clamp-2 leading-snug mb-1.5">
+                                    ${escapeHtml(prod.name)}
+                                </h3>
+                            </div>
+
+                            <div>
+                                <div class="flex items-baseline gap-1.5">
+                                    <span class="text-shopee font-black text-base sm:text-lg">
+                                        <span class="text-[11px] font-bold">R$</span>${formatCurrency(prod.price)}
+                                    </span>
+                                    <span class="text-[10px] text-gray-400 line-through">R$${formatCurrency(oldPrice)}</span>
+                                </div>
+
+                                <!-- Barra de Popularidade Shopee -->
+                                <div class="mt-1.5 mb-2.5">
+                                    <div class="w-full h-3.5 bg-orange-100 rounded-full overflow-hidden relative flex items-center justify-center">
+                                        <div class="absolute left-0 top-0 bottom-0 shopee-gradient rounded-full" style="width: ${stockBarWidth}%"></div>
+                                        <span class="relative z-10 text-[9px] font-extrabold text-white drop-shadow-xs uppercase tracking-wider">
+                                            ${prod.sold || 12} vendidos
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <button onclick="event.stopPropagation(); addToCart('${prod.id}')" class="w-full bg-shopee-orangeLight hover:bg-shopee text-shopee hover:text-white border border-shopee/60 font-extrabold py-2 px-2 rounded-lg text-xs transition flex items-center justify-center gap-1.5 active:scale-95">
+                                    <i class="fa-solid fa-cart-plus"></i> Adicionar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        };
+
+        // ==================== MODAL DE DETALHES DO PRODUTO ====================
+        window.selectProductVariant = function(btnEl, variantName) {
+            selectedProductVariant = variantName;
+            document.querySelectorAll('.variant-btn').forEach(b => {
+                b.className = 'variant-btn border border-gray-200 bg-white text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-xl transition';
+            });
+            btnEl.className = 'variant-btn border-2 border-shopee bg-shopee-orangeLight text-shopee text-xs font-bold px-3 py-1.5 rounded-xl transition';
+        };
+
+        window.simulateShippingQuote = function() {
+            const loc = document.getElementById('detail-cep-input').value.trim();
+            const res = document.getElementById('detail-shipping-result');
+            if (!loc) {
+                showToast('Digite seu bairro ou cidade para calcular!', 'error');
+                return;
+            }
+            res.textContent = `✓ Entrega Expressa GRÁTIS para ${loc} — Chega hoje via SPX!`;
+            res.classList.remove('hidden');
+        };
+
+        window.openProductDetail = function(productId) {
+            const prod = products.find(p => p.id === productId);
+            if (!prod) return;
+
+            selectedProductVariant = 'Padrão Oficial';
+            document.querySelectorAll('.variant-btn').forEach((b, idx) => {
+                b.className = idx === 0
+                    ? 'variant-btn border-2 border-shopee bg-shopee-orangeLight text-shopee text-xs font-bold px-3 py-1.5 rounded-xl transition'
+                    : 'variant-btn border border-gray-200 bg-white text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-xl transition';
+            });
+            document.getElementById('detail-shipping-result').classList.add('hidden');
+            document.getElementById('detail-cep-input').value = '';
+
+            const fallbackImg = `https://placehold.co/500x500/ee4d2d/ffffff?text=${encodeURIComponent(prod.name.substring(0, 14))}`;
+            const oldPrice = prod.oldPrice && prod.oldPrice > prod.price ? prod.oldPrice : (prod.price * 1.35);
+            const discountPct = Math.round(((oldPrice - prod.price) / oldPrice) * 100);
+
+            document.getElementById('detail-img').src = prod.image || fallbackImg;
+            document.getElementById('detail-name').textContent = prod.name;
+            document.getElementById('detail-price').textContent = `R$ ${formatCurrency(prod.price)}`;
+            document.getElementById('detail-old-price').textContent = `R$ ${formatCurrency(oldPrice)}`;
+            document.getElementById('detail-discount-badge').textContent = `-${discountPct}% OFF`;
+            document.getElementById('detail-category-tag').textContent = prod.category || 'Oficial';
+            document.getElementById('detail-sold').textContent = `(${prod.sold || 12} vendidos)`;
+            document.getElementById('detail-desc').textContent = prod.description || 'Produto oficial com entrega rápida Shopee Xpress.';
+
+            // Buscar avaliações reais feitas por amigos em pedidos com este produto
+            const prodReviews = orders.filter(o => o.rating > 0 && (o.items || []).some(i => i.name === prod.name));
+            const reviewsCountEl = document.getElementById('detail-reviews-count');
+            const reviewsListEl = document.getElementById('detail-reviews-list');
+            reviewsCountEl.textContent = `${prodReviews.length} avaliação(ões)`;
+
+            if (prodReviews.length === 0) {
+                reviewsListEl.innerHTML = `<p class="text-[11px] text-gray-400 bg-gray-50 p-2.5 rounded-xl">Seja o primeiro a comprar, receber e avaliar com 5 estrelas!</p>`;
+            } else {
+                reviewsListEl.innerHTML = prodReviews.map(r => `
+                    <div class="bg-gray-50 p-2.5 rounded-xl border border-gray-100 text-xs">
+                        <div class="flex items-center justify-between">
+                            <span class="font-extrabold text-gray-800">${escapeHtml(r.customerName)}</span>
+                            <span class="text-yellow-400 text-[10px]">${'★'.repeat(r.rating)}</span>
+                        </div>
+                        <p class="text-gray-600 text-[11px] mt-0.5">${escapeHtml(r.ratingComment || 'Entrega super rápida e produto perfeito!')}</p>
+                    </div>
+                `).join('');
+            }
+
+            document.getElementById('detail-add-btn').onclick = function() {
+                addToCart(prod.id, selectedProductVariant);
+                toggleModal('product-detail-modal');
+            };
+            document.getElementById('detail-buy-now-btn').onclick = function() {
+                addToCart(prod.id, selectedProductVariant);
+                toggleModal('product-detail-modal');
+                toggleCartDrawer();
+            };
+
+            toggleModal('product-detail-modal');
+        };
+
+        // ==================== CARRINHO, CUPONS, MOEDAS & CHECKOUT ====================
+        window.addToCart = function(productId, variantLabel = 'Padrão Oficial') {
+            const prod = products.find(p => p.id === productId);
+            if (!prod) return;
+
+            const existing = cart.find(item => item.product.id === productId && item.variant === variantLabel);
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                cart.push({ product: prod, variant: variantLabel, qty: 1, selected: true });
+            }
+
+            const badge = document.getElementById('cart-count-badge');
+            if (badge) {
+                badge.classList.remove('badge-bump');
+                void badge.offsetWidth;
+                badge.classList.add('badge-bump');
+            }
+
+            updateCartUI();
+            showToast(`Adicionado: ${prod.name.substring(0, 20)}...`, 'success');
+        };
+
+        window.toggleCartItemSelect = function(index) {
+            if (!cart[index]) return;
+            cart[index].selected = !cart[index].selected;
+            updateCartUI();
+        };
+
+        window.updateCartQty = function(index, delta) {
+            if (!cart[index]) return;
+            cart[index].qty += delta;
+            if (cart[index].qty <= 0) {
+                cart.splice(index, 1);
+            }
+            updateCartUI();
+        };
+
+        window.applyCouponCode = function() {
+            const raw = (document.getElementById('coupon-input').value || '').trim().toUpperCase();
+            if (!raw) {
+                showToast('Digite um código de cupom (ex: SHOPEE10)', 'error');
+                return;
+            }
+            if (raw === 'SHOPEE10' || raw === 'MEGA20' || raw === 'FRETEGRATIS') {
+                appliedCoupon = raw;
+                updateCartUI();
+                showToast(`Cupom ${raw} aplicado com sucesso!`, 'success');
+            } else {
+                showToast('Cupom inválido! Tente SHOPEE10, MEGA20 ou FRETEGRATIS.', 'error');
+            }
+        };
+
+        window.togglePaymentPreview = function() {
+            const val = document.getElementById('checkout-payment').value;
+            const pixBox = document.getElementById('pix-qr-box');
+            const cardBox = document.getElementById('card-preview-box');
+
+            pixBox.classList.add('hidden');
+            cardBox.classList.add('hidden');
+
+            if (val === 'Pix Instantâneo') {
+                pixBox.classList.remove('hidden');
+            } else if (val.includes('Cartão')) {
+                cardBox.classList.remove('hidden');
+            }
+        };
+
+        window.copyPixCode = function() {
+            const fakePix = `00020126580014BR.GOV.BCB.PIX0136shopeesim-loja-${storeRoom}-20265204000053039865802BR5913SHOPEESIM BR6009SAO PAULO62070503***6304E2CA`;
+            const tempInput = document.createElement('input');
+            tempInput.value = fakePix;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            showToast('Código Pix Copia e Cola copiado!', 'success');
+        };
+
+        function updateCartUI() {
+            updateCoinsDisplay();
+            const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+            const selectedItems = cart.filter(item => item.selected !== false);
+            const subtotal = selectedItems.reduce((sum, item) => sum + (item.product.price * item.qty), 0);
+
+            let couponDiscount = 0;
+            if (appliedCoupon === 'SHOPEE10') couponDiscount = subtotal * 0.10;
+            if (appliedCoupon === 'MEGA20') couponDiscount = subtotal * 0.20;
+
+            const useCoins = document.getElementById('use-coins-toggle')?.checked || false;
+            const maxCoinsDiscount = userCoins * 0.10;
+            const coinsDiscount = useCoins ? Math.min(maxCoinsDiscount, Math.max(0, subtotal - couponDiscount)) : 0;
+
+            const finalTotal = Math.max(0, subtotal - couponDiscount - coinsDiscount);
+
+            document.getElementById('cart-count-badge').textContent = totalItems;
+            document.getElementById('cart-subtotal-price').textContent = `R$ ${formatCurrency(subtotal)}`;
+            document.getElementById('cart-total-price').textContent = `R$ ${formatCurrency(finalTotal)}`;
+
+            const discountRow = document.getElementById('cart-discount-row');
+            const couponMsg = document.getElementById('applied-coupon-msg');
+            if (couponDiscount > 0) {
+                discountRow.classList.remove('hidden');
+                discountRow.classList.add('flex');
+                document.getElementById('cart-discount-price').textContent = `- R$ ${formatCurrency(couponDiscount)}`;
+            } else {
+                discountRow.classList.add('hidden');
+                discountRow.classList.remove('flex');
+            }
+
+            const coinsDiscountRow = document.getElementById('cart-coins-discount-row');
+            if (coinsDiscount > 0) {
+                coinsDiscountRow.classList.remove('hidden');
+                coinsDiscountRow.classList.add('flex');
+                document.getElementById('cart-coins-discount-price').textContent = `- R$ ${formatCurrency(coinsDiscount)}`;
+            } else {
+                coinsDiscountRow.classList.add('hidden');
+                coinsDiscountRow.classList.remove('flex');
+            }
+
+            if (appliedCoupon && couponMsg) {
+                couponMsg.classList.remove('hidden');
+                couponMsg.querySelector('span').textContent = `Cupom ${appliedCoupon} ativo!`;
+            }
+
+            const container = document.getElementById('cart-items-container');
+            const fieldsBox = document.getElementById('checkout-fields-box');
+            const checkoutBtn = document.getElementById('checkout-btn');
+
+            if (cart.length === 0) {
+                checkoutBtn.disabled = true;
+                fieldsBox.classList.add('hidden');
+                container.innerHTML = `
+                    <div class="flex flex-col items-center justify-center text-center text-gray-400 py-14">
+                        <div class="w-20 h-20 rounded-full bg-orange-50 text-shopee/40 flex items-center justify-center text-4xl mb-3">
+                            <i class="fa-solid fa-cart-arrow-down"></i>
+                        </div>
+                        <p class="font-bold text-gray-600 text-sm">Seu carrinho está vazio</p>
+                        <p class="text-xs mt-1 max-w-[200px]">Explore os achadinhos da loja e adicione seus favoritos!</p>
+                    </div>
+                `;
+                renderMobileBottomNav();
+                return;
+            }
+
+            checkoutBtn.disabled = selectedItems.length === 0;
+            fieldsBox.classList.remove('hidden');
+            container.innerHTML = cart.map((item, index) => `
+                <div class="flex items-center gap-2.5 bg-white p-2.5 rounded-xl border ${item.selected !== false ? 'border-orange-200' : 'border-gray-100 opacity-60'} shadow-2xs">
+                    <input type="checkbox" ${item.selected !== false ? 'checked' : ''} onchange="toggleCartItemSelect(${index})" class="w-4 h-4 accent-shopee rounded cursor-pointer">
+                    <img src="${item.product.image}" onerror="this.src='https://placehold.co/100x100/ee4d2d/ffffff?text=Item'" class="w-14 h-14 rounded-lg object-cover bg-gray-50 border shrink-0">
+                    <div class="flex-1 min-w-0">
+                        <h4 class="text-xs font-bold text-gray-800 truncate">${escapeHtml(item.product.name)}</h4>
+                        <span class="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.2 rounded font-semibold">${escapeHtml(item.variant || 'Padrão')}</span>
+                        <div class="flex items-center justify-between mt-1.5">
+                            <span class="text-shopee font-black text-sm">R$ ${formatCurrency(item.product.price)}</span>
+                            <div class="flex items-center gap-1.5">
+                                <button onclick="updateCartQty(${index}, -1)" class="w-6 h-6 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs flex items-center justify-center">-</button>
+                                <span class="text-xs font-extrabold w-4 text-center">${item.qty}</span>
+                                <button onclick="updateCartQty(${index}, 1)" class="w-6 h-6 rounded-lg bg-orange-50 hover:bg-orange-100 text-shopee font-bold text-xs flex items-center justify-center">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            renderMobileBottomNav();
+        }
+
+        window.toggleCartDrawer = function() {
+            const drawer = document.getElementById('cart-drawer');
+            if (drawer.classList.contains('hidden')) {
+                drawer.classList.remove('hidden');
+                drawer.classList.add('flex');
+            } else {
+                drawer.classList.add('hidden');
+                drawer.classList.remove('flex');
+            }
+        };
+
+        window.checkoutOrder = async function() {
+            const selectedItems = cart.filter(item => item.selected !== false);
+            if (selectedItems.length === 0) return;
+            if (!db || !firebaseUser) {
+                showToast('Aguarde a conexão com a loja online!', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('checkout-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processando...';
+
+            try {
+                const subtotal = selectedItems.reduce((sum, item) => sum + (item.product.price * item.qty), 0);
+                let couponDiscount = 0;
+                if (appliedCoupon === 'SHOPEE10') couponDiscount = subtotal * 0.10;
+                if (appliedCoupon === 'MEGA20') couponDiscount = subtotal * 0.20;
+
+                const useCoins = document.getElementById('use-coins-toggle')?.checked || false;
+                const coinsDiscount = useCoins ? Math.min(userCoins * 0.10, Math.max(0, subtotal - couponDiscount)) : 0;
+                const coinsSpent = Math.round(coinsDiscount * 10);
+                const total = Math.max(0, subtotal - couponDiscount - coinsDiscount);
+
+                const now = getFormattedNow();
+                const orderCode = 'BR26' + Math.floor(1000000 + Math.random() * 9000000) + 'SPX';
+                const addressInput = document.getElementById('checkout-address').value.trim() || 'Entrega Padrão - Casa do Cliente';
+                const paymentInput = document.getElementById('checkout-payment').value;
+
+                const newOrder = {
+                    trackingCode: orderCode,
+                    customerName: currentUser,
+                    address: addressInput,
+                    paymentMethod: paymentInput,
+                    couponUsed: appliedCoupon || '',
+                    items: selectedItems.map(c => ({
+                        name: c.product.name,
+                        variant: c.variant || 'Padrão',
+                        price: c.product.price,
+                        qty: c.qty,
+                        image: c.product.image
+                    })),
+                    total: total,
+                    currentStatus: 'Pedido realizado',
+                    delivered: false,
+                    rating: 0,
+                    ratingComment: '',
+                    createdAt: now,
+                    createdTimestamp: Date.now(),
+                    timeline: [
+                        {
+                            status: 'Pedido realizado',
+                            description: `Pagamento confirmado (${paymentInput}). Aguardando o vendedor iniciar o preparo.`,
+                            time: now
+                        }
+                    ]
+                };
+
+                const ordersRef = collection(db, 'artifacts', appId, 'public', 'data', `shopeesim_${storeRoom}_orders`);
+                await addDoc(ordersRef, newOrder);
+
+                for (const c of selectedItems) {
+                    const p = products.find(prod => prod.id === c.product.id);
+                    if (p) {
+                        const prodDocRef = doc(db, 'artifacts', appId, 'public', 'data', `shopeesim_${storeRoom}_products`, p.id);
+                        await updateDoc(prodDocRef, { sold: (p.sold || 0) + c.qty }).catch(() => {});
+                    }
+                }
+
+                userCoins = Math.max(0, userCoins - coinsSpent) + 20;
+                updateCoinsDisplay();
+                saveSession();
+
+                cart = cart.filter(item => item.selected === false);
+                if (document.getElementById('use-coins-toggle')) document.getElementById('use-coins-toggle').checked = false;
+                updateCartUI();
+                toggleCartDrawer();
+
+                document.getElementById('success-tracking-code').textContent = orderCode;
+                document.getElementById('success-total-paid').textContent = `Total pago: R$ ${formatCurrency(total)}`;
+                toggleModal('order-success-modal');
+            } catch (err) {
+                console.error('Erro ao finalizar pedido:', err);
+                showToast('Erro ao enviar pedido. Tente novamente.', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-bag-shopping"></i> Fazer Pedido Agora';
+            }
+        };
+
+        window.closeSuccessAndTrack = function() {
+            toggleModal('order-success-modal');
+            switchTab('my-orders');
+        };
+
+        // ==================== MINHAS COMPRAS, RASTREAMENTO SPX & AVALIAÇÃO ====================
+        window.setOrderFilter = function(filterName) {
+            clientOrderFilter = filterName;
+            ['all', 'prep', 'transit', 'delivered'].forEach(key => {
+                const btn = document.getElementById(`ord-tab-${key}`);
+                if (!btn) return;
+                btn.className = key === filterName
+                    ? 'flex-1 min-w-[85px] py-2 px-3 rounded-xl text-xs font-extrabold bg-shopee text-white transition'
+                    : 'flex-1 min-w-[85px] py-2 px-3 rounded-xl text-xs font-bold text-gray-600 hover:bg-gray-50 transition';
+            });
+            renderClientOrders();
+        };
+
+        function getProgressStep(order) {
+            if (order.delivered) return 4;
+            const st = (order.currentStatus || '').toLowerCase();
+            if (st.includes('entrega') || st.includes('motorista') || st.includes('trânsito') || st.includes('enviado')) return 3;
+            if (st.includes('prepara') || st.includes('embalad') || st.includes('confirmad')) return 2;
+            return 1;
+        }
+
+        function renderClientOrders() {
+            const container = document.getElementById('client-orders-list');
+            const badge = document.getElementById('client-orders-badge');
+
+            let myOrders = orders.filter(o => (o.customerName || '').toLowerCase() === (currentUser || '').toLowerCase());
+
+            if (myOrders.length > 0) {
+                badge.textContent = myOrders.length;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+
+            if (clientOrderFilter === 'prep') {
+                myOrders = myOrders.filter(o => !o.delivered && getProgressStep(o) <= 2);
+            } else if (clientOrderFilter === 'transit') {
+                myOrders = myOrders.filter(o => !o.delivered && getProgressStep(o) === 3);
+            } else if (clientOrderFilter === 'delivered') {
+                myOrders = myOrders.filter(o => o.delivered);
+            }
+
+            if (myOrders.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-white rounded-2xl p-10 text-center border border-gray-100 shadow-2xs">
+                        <div class="w-16 h-16 bg-orange-50 text-shopee rounded-full flex items-center justify-center text-2xl mx-auto mb-3">
+                            <i class="fa-solid fa-bag-shopping"></i>
+                        </div>
+                        <h3 class="font-extrabold text-gray-800 text-base sm:text-lg">Nenhum pedido nesta aba</h3>
+                        <p class="text-xs sm:text-sm text-gray-500 mt-1 mb-4">Escolha um produto na vitrine e acompanhe a entrega SPX em tempo real!</p>
+                        <button onclick="switchTab('store')" class="shopee-gradient text-white font-bold px-5 py-2.5 rounded-xl text-sm shadow transition">
+                            Explorar Vitrine
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = myOrders.map(order => {
+                const step = getProgressStep(order);
+                return `
+                    <div class="bg-white rounded-2xl shadow-xs border ${order.delivered ? 'border-emerald-200' : 'border-gray-100'} overflow-hidden">
+                        <!-- Topo Pedido -->
+                        <div class="${order.delivered ? 'bg-emerald-50/70' : 'bg-gray-50'} px-4 sm:px-5 py-3 border-b flex flex-wrap items-center justify-between gap-2">
+                            <div class="flex items-center gap-2">
+                                <span class="bg-shopee text-white text-[10px] font-black px-2 py-0.5 rounded uppercase">Shopee Oficial</span>
+                                <span class="text-[11px] font-mono font-bold text-gray-600">${order.trackingCode}</span>
+                            </div>
+                            <span class="text-xs font-extrabold uppercase tracking-wide ${order.delivered ? 'text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded-full' : 'text-shopee'}">
+                                <i class="fa-solid ${order.delivered ? 'fa-circle-check' : 'fa-truck-fast truck-bounce'} mr-1"></i>
+                                ${escapeHtml(order.currentStatus)}
+                            </span>
+                        </div>
+
+                        <!-- Mapa/Rota Ilustrada Animada 4 Etapas -->
+                        <div class="px-4 sm:px-6 pt-4 pb-3 bg-teal-50/35 border-b border-gray-100">
+                            <div class="relative">
+                                <div class="absolute top-3 left-[12%] right-[12%] h-0.5 bg-gray-200 z-0">
+                                    <div class="h-full bg-teal-500 transition-all duration-500" style="width: ${(step - 1) * 33.33}%"></div>
+                                </div>
+                                <div class="grid grid-cols-4 gap-1 text-center text-[10px] font-bold relative z-10">
+                                    <div class="${step >= 1 ? 'text-teal-700' : 'text-gray-400'}">
+                                        <div class="w-6 h-6 mx-auto rounded-full flex items-center justify-center mb-1 ${step >= 1 ? 'bg-teal-500 text-white shadow-xs' : 'bg-gray-200 text-gray-500'}"><i class="fa-solid fa-receipt text-[10px]"></i></div>
+                                        Pedido
+                                    </div>
+                                    <div class="${step >= 2 ? 'text-teal-700' : 'text-gray-400'}">
+                                        <div class="w-6 h-6 mx-auto rounded-full flex items-center justify-center mb-1 ${step >= 2 ? 'bg-teal-500 text-white shadow-xs' : 'bg-gray-200 text-gray-500'}"><i class="fa-solid fa-box-open text-[10px]"></i></div>
+                                        Preparando
+                                    </div>
+                                    <div class="${step >= 3 ? 'text-teal-700' : 'text-gray-400'}">
+                                        <div class="w-6 h-6 mx-auto rounded-full flex items-center justify-center mb-1 ${step >= 3 ? 'bg-teal-500 text-white shadow-xs' : 'bg-gray-200 text-gray-500'}"><i class="fa-solid fa-truck text-[10px]"></i></div>
+                                        Em Trânsito
+                                    </div>
+                                    <div class="${step >= 4 ? 'text-emerald-700' : 'text-gray-400'}">
+                                        <div class="w-6 h-6 mx-auto rounded-full flex items-center justify-center mb-1 ${step >= 4 ? 'bg-emerald-600 text-white shadow-xs' : 'bg-gray-200 text-gray-500'}"><i class="fa-solid fa-house-circle-check text-[10px]"></i></div>
+                                        Entregue
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Produtos do Pedido -->
+                        <div class="p-4 sm:p-5 border-b border-gray-100 space-y-2.5">
+                            ${(order.items || []).map(item => `
+                                <div class="flex items-center justify-between gap-3">
+                                    <div class="flex items-center gap-3 min-w-0">
+                                        <img src="${item.image}" onerror="this.src='https://placehold.co/80x80/ee4d2d/ffffff?text=Item'" class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl object-cover border shrink-0">
+                                        <div class="min-w-0">
+                                            <p class="text-xs sm:text-sm font-bold text-gray-800 truncate">${escapeHtml(item.name)}</p>
+                                            <p class="text-[11px] text-gray-400">${escapeHtml(item.variant || 'Padrão')} • Qtd: x${item.qty}</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-xs sm:text-sm font-extrabold text-gray-700 shrink-0">R$ ${formatCurrency(item.price * item.qty)}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+
+                        <!-- Linha do Tempo SPX -->
+                        <div class="p-4 sm:p-5 bg-white">
+                            <div class="flex items-center justify-between mb-3.5">
+                                <h4 class="text-[11px] font-black uppercase tracking-wider text-gray-500 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-location-dot text-teal-600"></i> Histórico Shopee Xpress (SPX)
+                                </h4>
+                                <span class="text-[11px] text-gray-500">Destinatário: <strong class="text-gray-800">${escapeHtml(order.customerName)}</strong></span>
+                            </div>
+
+                            <div class="space-y-4 pl-1">
+                                ${(order.timeline || []).map((stepItem, idx) => {
+                                    const isLatest = idx === 0;
+                                    const isReceivedMsg = (stepItem.status || '').toLowerCase().includes('recebido');
+                                    return `
+                                        <div class="relative flex gap-3.5 timeline-item">
+                                            <div class="timeline-line relative flex flex-col items-center">
+                                                <div class="w-6 h-6 rounded-full flex items-center justify-center z-10 ${isLatest ? (isReceivedMsg ? 'bg-emerald-600 text-white ring-4 ring-emerald-50' : 'bg-teal-500 text-white ring-4 ring-teal-50') : 'bg-gray-200 text-gray-500'}">
+                                                    <i class="fa-solid ${isLatest ? 'fa-check' : 'fa-circle'} text-[9px]"></i>
+                                                </div>
+                                            </div>
+                                            <div class="flex-1 pb-1.5">
+                                                <p class="text-xs sm:text-sm font-extrabold ${isLatest ? (isReceivedMsg ? 'text-emerald-700' : 'text-teal-600') : 'text-gray-600'}">
+                                                    ${escapeHtml(stepItem.status)}
+                                                </p>
+                                                ${stepItem.description ? `<p class="text-xs ${isLatest ? 'text-gray-800 font-medium' : 'text-gray-500'} mt-0.5">${escapeHtml(stepItem.description)}</p>` : ''}
+                                                <span class="text-[10px] text-gray-400 block mt-1">${stepItem.time}</span>
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+
+                        <!-- Rodapé com Ação de Confirmar / Avaliar -->
+                        <div class="bg-orange-50/60 px-4 sm:px-5 py-3 border-t flex flex-wrap justify-between items-center gap-2">
+                            <div>
+                                <span class="text-[11px] text-gray-500">Total: </span>
+                                <span class="text-base sm:text-lg font-black text-shopee">R$ ${formatCurrency(order.total)}</span>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                ${order.rating > 0 ? `
+                                    <span class="bg-yellow-100 text-yellow-800 text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1">
+                                        <i class="fa-solid fa-star text-yellow-500"></i> Avaliado (${order.rating}/5)
+                                    </span>
+                                ` : order.delivered ? `
+                                    <button onclick="openRatingModal('${order.id}')" class="bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-extrabold px-3.5 py-2 rounded-xl text-xs shadow-xs transition flex items-center gap-1">
+                                        <i class="fa-solid fa-star"></i> Avaliar Pedido
+                                    </button>
+                                ` : `
+                                    <button onclick="confirmCustomerReceipt('${order.id}')" class="bg-teal-600 hover:bg-teal-700 text-white font-bold px-3.5 py-2 rounded-xl text-xs shadow-xs transition flex items-center gap-1">
+                                        <i class="fa-solid fa-check-double"></i> Confirmar Recebimento
+                                    </button>
+                                `}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.confirmCustomerReceipt = function(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if (!order) return;
+            addTrackingUpdate(
+                orderId,
+                `Seu pedido foi recebido por ${order.customerName}`,
+                `Recebimento confirmado pelo próprio cliente ${order.customerName}!`,
+                true
+            );
+        };
+
+        window.openRatingModal = function(orderId) {
+            ratingOrderId = orderId;
+            selectedStarsCount = 5;
+            document.getElementById('rating-comment').value = '';
+            updateStarIcons();
+            toggleModal('rating-modal');
+        };
+
+        window.selectStars = function(count) {
+            selectedStarsCount = count;
+            updateStarIcons();
+        };
+
+        function updateStarIcons() {
+            const btns = document.querySelectorAll('#star-selector button');
+            btns.forEach((btn, idx) => {
+                btn.className = idx < selectedStarsCount ? 'text-yellow-400 scale-110 transition' : 'text-gray-200 transition';
+            });
+        }
+
+        window.submitOrderRating = async function() {
+            if (!ratingOrderId || !db || !firebaseUser) return;
+            const comment = document.getElementById('rating-comment').value.trim();
+
+            try {
+                const orderDocRef = doc(db, 'artifacts', appId, 'public', 'data', `shopeesim_${storeRoom}_orders`, ratingOrderId);
+                await updateDoc(orderDocRef, {
+                    rating: selectedStarsCount,
+                    ratingComment: comment
+                });
+
+                userCoins += 10;
+                updateCoinsDisplay();
+                saveSession();
+                toggleModal('rating-modal');
+                showToast(`Avaliação de ${selectedStarsCount} estrelas publicada! +10 Moedas`, 'success');
+            } catch (err) {
+                showToast('Erro ao enviar avaliação.', 'error');
+            }
+        };
+
+        // ==================== SHOPEE SELLER CENTER ([admloja]) ====================
+        window.setAdminOrderFilter = function(filt) {
+            adminOrderFilter = filt;
+            ['all', 'active', 'delivered'].forEach(k => {
+                const b = document.getElementById(`adm-filt-${k}`);
+                if (!b) return;
+                b.className = k === filt
+                    ? 'px-2.5 py-1 rounded-lg font-extrabold bg-shopee text-white'
+                    : 'px-2.5 py-1 rounded-lg font-bold text-gray-600';
+            });
+            renderAdminOrders();
+        };
+
+        function updateAdminStats() {
+            const totalRev = orders.reduce((s, o) => s + (o.total || 0), 0);
+            const activeCount = orders.filter(o => !o.delivered).length;
+            const avgTicket = orders.length > 0 ? totalRev / orders.length : 0;
+            const uniqueClients = new Set(orders.map(o => (o.customerName || '').toLowerCase())).size;
+
+            const elRev = document.getElementById('stat-revenue');
+            const elOrd = document.getElementById('stat-orders');
+            const elSub = document.getElementById('stat-pending-sub');
+            const elAvg = document.getElementById('stat-avg-ticket');
+            const elCust = document.getElementById('stat-customers');
+
+            if (elRev) elRev.textContent = `R$ ${formatCurrency(totalRev)}`;
+            if (elOrd) elOrd.textContent = orders.length;
+            if (elSub) elSub.textContent = `${activeCount} em andamento`;
+            if (elAvg) elAvg.textContent = `R$ ${formatCurrency(avgTicket)}`;
+            if (elCust) elCust.textContent = uniqueClients;
+        }
+
+        window.updateLiveProductPreview = function() {
+            const name = document.getElementById('prod-name').value.trim() || 'Nome do Produto Aparece Aqui';
+            const price = parseFloat(document.getElementById('prod-price').value) || 59.90;
+            const oldPriceVal = parseFloat(document.getElementById('prod-old-price').value);
+            const oldPrice = (!isNaN(oldPriceVal) && oldPriceVal > price) ? oldPriceVal : Number((price * 1.3).toFixed(2));
+            const badge = document.getElementById('prod-badge').value || 'Indicado';
+            const urlInput = document.getElementById('prod-img-url').value.trim();
+            const imgSrc = uploadedBase64Image || urlInput || `https://placehold.co/400x400/ee4d2d/ffffff?text=${encodeURIComponent(name.substring(0, 12))}`;
+            const discountPct = Math.round(((oldPrice - price) / oldPrice) * 100);
+
+            document.getElementById('live-card-name').textContent = name;
+            document.getElementById('live-card-price').textContent = `R$ ${formatCurrency(price)}`;
+            document.getElementById('live-card-old-price').textContent = `R$ ${formatCurrency(oldPrice)}`;
+            document.getElementById('live-card-badge').textContent = badge;
+            document.getElementById('live-card-img').src = imgSrc;
+            document.getElementById('live-card-discount').innerHTML = `-${discountPct}%<br><span class="text-[8px] text-gray-800">OFF</span>`;
+        };
+
+        window.handleImageUpload = function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const maxSize = 420;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > maxSize) {
+                            height *= maxSize / width;
+                            width = maxSize;
+                        }
+                    } else {
+                        if (height > maxSize) {
+                            width *= maxSize / height;
+                            height = maxSize;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    uploadedBase64Image = canvas.toDataURL('image/jpeg', 0.72);
+                    document.getElementById('prod-img-url').value = '';
+                    updateLiveProductPreview();
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        };
+
+        window.setQuickImage = function(url, cat) {
+            uploadedBase64Image = '';
+            document.getElementById('prod-img-url').value = url;
+            if (cat) document.getElementById('prod-category').value = cat;
+            updateLiveProductPreview();
+        };
+
+        window.editProduct = function(prodId) {
+            const p = products.find(item => item.id === prodId);
+            if (!p) return;
+
+            document.getElementById('edit-prod-id').value = p.id;
+            document.getElementById('prod-name').value = p.name;
+            document.getElementById('prod-price').value = p.price;
+            document.getElementById('prod-old-price').value = p.oldPrice || '';
+            document.getElementById('prod-category').value = p.category || 'Outros';
+            document.getElementById('prod-badge').value = p.badge || 'Indicado';
+            document.getElementById('prod-desc').value = p.description || '';
+
+            if (p.image && p.image.startsWith('data:')) {
+                uploadedBase64Image = p.image;
+                document.getElementById('prod-img-url').value = '';
+            } else {
+                uploadedBase64Image = '';
+                document.getElementById('prod-img-url').value = p.image || '';
+            }
+            updateLiveProductPreview();
+
+            document.getElementById('product-form-title').innerHTML = '<i class="fa-solid fa-pen-to-square text-shopee"></i> Editar Produto';
+            document.getElementById('save-product-submit-btn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Salvar Alterações';
+            document.getElementById('cancel-edit-btn').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.resetProductForm = function() {
+            document.getElementById('add-product-form').reset();
+            document.getElementById('edit-prod-id').value = '';
+            uploadedBase64Image = '';
+            updateLiveProductPreview();
+            document.getElementById('product-form-title').innerHTML = '<i class="fa-solid fa-circle-plus text-shopee"></i> Cadastrar Produto';
+            document.getElementById('save-product-submit-btn').innerHTML = '<i class="fa-solid fa-check"></i> Publicar Produto na Loja';
+            document.getElementById('cancel-edit-btn').classList.add('hidden');
+        };
+
+        window.handleSaveProduct = async function(e) {
+            e.preventDefault();
+            if (!db || !firebaseUser) {
+                showToast('Aguarde a conexão online!', 'error');
+                return;
+            }
+
+            const editId = document.getElementById('edit-prod-id').value;
+            const name = document.getElementById('prod-name').value.trim();
+            const price = parseFloat(document.getElementById('prod-price').value);
+            const oldPriceVal = parseFloat(document.getElementById('prod-old-price').value);
+            const category = document.getElementById('prod-category').value;
+            const badge = document.getElementById('prod-badge').value;
+            const urlInput = document.getElementById('prod-img-url').value.trim();
+            const desc = document.getElementById('prod-desc').value.trim();
+
+            if (!name || isNaN(price)) return;
+
+            const finalImage = uploadedBase64Image || urlInput || `https://placehold.co/400x400/ee4d2d/ffffff?text=${encodeURIComponent(name.substring(0, 12))}`;
+            const finalOldPrice = (!isNaN(oldPriceVal) && oldPriceVal > price) ? oldPriceVal : Number((price * 1.3).toFixed(2));
+
+            try {
+                if (editId) {
+                    const prodDocRef = doc(db, 'artifacts', appId, 'public', 'data', `shopeesim_${storeRoom}_products`, editId);
+                    await updateDoc(prodDocRef, {
+                        name,
+                        price,
+                        oldPrice: finalOldPrice,
+                        category,
+                        badge,
+                        image: finalImage,
+                        description: desc || 'Produto oficial da loja.'
+                    });
+                    showToast(`Produto "${name}" atualizado ao vivo!`, 'success');
+                } else {
+                    const productsRef = collection(db, 'artifacts', appId, 'public', 'data', `shopeesim_${storeRoom}_products`);
+                    await addDoc(productsRef, {
+                        name,
+                        price,
+                        oldPrice: finalOldPrice,
+                        category,
+                        badge,
+                        image: finalImage,
+                        description: desc || 'Produto oficial selecionado pelo vendedor.',
+                        sold: 0,
+                        createdAt: Date.now()
+                    });
+                    showToast(`Produto "${name}" publicado na vitrine!`, 'success');
+                }
+                resetProductForm();
+            } catch (err) {
+                console.error('Erro salvar produto:', err);
+                showToast('Erro ao salvar produto. Tente uma foto menor.', 'error');
+            }
+        };
+
+        window.deleteProduct = async function(prodId) {
+            if (!db || !firebaseUser) return;
+            try {
+                const prodDocRef = doc(db, 'artifacts', appId, 'public', 'data', `shopeesim_${storeRoom}_products`, prodId);
+                await deleteDoc(prodDocRef);
+                showToast('Produto removido da vitrine.', 'info');
+            } catch (err) {
+                showToast('Erro ao remover produto.', 'error');
+            }
+        };
+
+        function renderAdminProducts() {
+            const list = document.getElementById('admin-products-list');
+            const countBadge = document.getElementById('admin-prod-count');
+            countBadge.textContent = `${products.length} item(ns)`;
+
+            if (products.length === 0) {
+                list.innerHTML = `<p class="text-sm text-gray-400 py-8 text-center">Nenhum produto cadastrado ainda.</p>`;
+                return;
+            }
+
+            list.innerHTML = products.map(p => `
+                <div class="py-3 flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <img src="${p.image}" onerror="this.src='https://placehold.co/80x80/ee4d2d/ffffff?text=Foto'" class="w-14 h-14 rounded-xl object-cover border bg-gray-50 shrink-0">
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-1">
+                                <span class="text-[10px] font-bold bg-orange-50 text-shopee px-1.5 py-0.5 rounded">${escapeHtml(p.badge || 'Indicado')}</span>
+                                <span class="text-[10px] font-bold bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">${escapeHtml(p.category || 'Outros')}</span>
+                            </div>
+                            <h4 class="text-xs sm:text-sm font-bold text-gray-800 truncate mt-0.5">${escapeHtml(p.name)}</h4>
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm font-black text-shopee">R$ ${formatCurrency(p.price)}</span>
+                                <span class="text-[11px] text-gray-400">(${p.sold || 0} vendidos)</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1 shrink-0">
+                        <button onclick="editProduct('${p.id}')" class="text-blue-600 hover:bg-blue-50 p-2 rounded-xl transition" title="Editar">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+                        <button onclick="deleteProduct('${p.id}')" class="text-red-500 hover:bg-red-50 p-2 rounded-xl transition" title="Excluir">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderAdminOrders() {
+            const container = document.getElementById('admin-orders-list');
+            const badge = document.getElementById('admin-orders-badge');
+            badge.textContent = orders.length;
+
+            let filtered = orders;
+            if (adminOrderFilter === 'active') filtered = orders.filter(o => !o.delivered);
+            if (adminOrderFilter === 'delivered') filtered = orders.filter(o => o.delivered);
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-white rounded-2xl p-10 text-center border border-gray-100">
+                        <i class="fa-solid fa-inbox text-4xl text-gray-300 mb-3"></i>
+                        <h4 class="font-bold text-gray-700">Nenhum pedido nesta lista</h4>
+                        <p class="text-xs sm:text-sm text-gray-500 mt-1">Quando um amigo comprar no celular, o pedido chega aqui ao vivo!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(order => `
+                <div class="bg-white rounded-2xl shadow-xs border ${order.delivered ? 'border-emerald-200' : 'border-gray-200'} overflow-hidden">
+                    <div class="${order.delivered ? 'bg-emerald-50/60' : 'bg-gray-50'} px-4 sm:px-5 py-3 border-b flex flex-wrap items-center justify-between gap-2">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-9 h-9 rounded-full shopee-gradient text-white font-black flex items-center justify-center uppercase text-sm shadow-xs">
+                                ${escapeHtml((order.customerName || 'C').charAt(0))}
+                            </div>
+                            <div>
+                                <p class="text-sm font-extrabold text-gray-800">
+                                    Cliente: <span class="text-shopee">${escapeHtml(order.customerName)}</span>
+                                </p>
+                                <p class="text-[10px] text-gray-400 font-mono">${order.trackingCode} • ${order.createdAt}</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-extrabold ${order.delivered ? 'bg-emerald-100 text-emerald-800' : 'bg-orange-100 text-shopee'}">
+                                ${escapeHtml(order.currentStatus)}
+                            </span>
+                            <p class="text-sm font-black text-gray-800 mt-0.5">R$ ${formatCurrency(order.total)}</p>
+                        </div>
+                    </div>
+
+                    <div class="p-4 sm:p-5 grid grid-cols-1 lg:grid-cols-12 gap-5">
+                        <div class="lg:col-span-5 space-y-3 border-b lg:border-b-0 lg:border-r pb-4 lg:pb-0 lg:pr-4">
+                            <div class="space-y-2">
+                                ${(order.items || []).map(item => `
+                                    <div class="flex items-center gap-2.5 bg-gray-50 p-2 rounded-xl">
+                                        <img src="${item.image}" onerror="this.src='https://placehold.co/60x60/ee4d2d/ffffff?text=Item'" class="w-10 h-10 rounded-lg object-cover">
+                                        <div class="min-w-0 flex-1">
+                                            <p class="text-xs font-bold text-gray-800 truncate">${escapeHtml(item.name)}</p>
+                                            <p class="text-[11px] text-gray-500">${escapeHtml(item.variant || 'Padrão')} • ${item.qty}x R$ ${formatCurrency(item.price)}</p>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+
+                            <div class="text-[11px] text-gray-600 bg-gray-50 p-2.5 rounded-xl border space-y-0.5">
+                                <p><strong>Endereço:</strong> ${escapeHtml(order.address || 'Não informado')}</p>
+                                <p><strong>Pagamento:</strong> ${escapeHtml(order.paymentMethod || 'Pix')}</p>
+                                ${order.rating > 0 ? `<p class="text-yellow-700 font-bold pt-1"><i class="fa-solid fa-star text-yellow-500"></i> Avaliação: ${order.rating}/5 ${order.ratingComment ? `"${escapeHtml(order.ratingComment)}"` : ''}</p>` : ''}
+                            </div>
+                        </div>
+
+                        <div class="lg:col-span-7 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <h5 class="text-xs font-black uppercase text-gray-700 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-truck-ramp-box text-shopee"></i> Atualizar Rastreamento SPX:
+                                </h5>
+                                <button onclick="deleteOrder('${order.id}')" class="text-[11px] text-red-400 hover:text-red-600 font-semibold transition">
+                                    <i class="fa-solid fa-trash"></i> Apagar
+                                </button>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                <button onclick="addTrackingUpdate('${order.id}', 'Pedido confirmado pelo vendedor', 'O vendedor confirmou o pedido de ${escapeQuotes(order.customerName)}.', false)" class="text-left px-3 py-2 rounded-xl border border-gray-200 hover:border-shopee hover:bg-orange-50 transition text-xs font-bold flex items-center gap-2">
+                                    <span class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-receipt"></i></span>
+                                    <span>1. Pedido Confirmado</span>
+                                </button>
+
+                                <button onclick="addTrackingUpdate('${order.id}', 'Seu pedido está em preparação', 'O vendedor está separando e embalando o pacote de ${escapeQuotes(order.customerName)}.', false)" class="text-left px-3 py-2 rounded-xl border border-gray-200 hover:border-shopee hover:bg-orange-50 transition text-xs font-bold flex items-center gap-2">
+                                    <span class="w-6 h-6 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-box-open"></i></span>
+                                    <span>2. Seu pedido está em preparação</span>
+                                </button>
+
+                                <button onclick="addTrackingUpdate('${order.id}', 'Pacote enviado via Shopee Xpress', 'Pacote coletado no centro logístico Shopee Xpress.', false)" class="text-left px-3 py-2 rounded-xl border border-gray-200 hover:border-shopee hover:bg-orange-50 transition text-xs font-bold flex items-center gap-2">
+                                    <span class="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-tape"></i></span>
+                                    <span>3. Enviado via Shopee Xpress</span>
+                                </button>
+
+                                <button onclick="addTrackingUpdate('${order.id}', 'Saiu para entrega hoje', 'O motorista SPX está indo para o endereço de ${escapeQuotes(order.customerName)}!', false)" class="text-left px-3 py-2 rounded-xl border border-gray-200 hover:border-shopee hover:bg-orange-50 transition text-xs font-bold flex items-center gap-2">
+                                    <span class="w-6 h-6 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-motorcycle"></i></span>
+                                    <span>4. Saiu para entrega hoje</span>
+                                </button>
+
+                                <button onclick="addTrackingUpdate('${order.id}', 'Seu pedido foi recebido por ${escapeQuotes(order.customerName)}', 'Entrega concluída com sucesso! Pacote recebido por ${escapeQuotes(order.customerName)}.', true)" class="sm:col-span-2 text-left px-3 py-2.5 rounded-xl border-2 border-emerald-500 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 transition text-xs font-extrabold flex items-center gap-2">
+                                    <span class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0"><i class="fa-solid fa-house-circle-check"></i></span>
+                                    <span>5. Seu pedido foi recebido por ${escapeHtml(order.customerName)}</span>
+                                </button>
+                            </div>
+
+                            <div class="pt-1">
+                                <div class="flex gap-2">
+                                    <input 
+                                        type="text" 
+                                        id="custom-track-${order.id}" 
+                                        placeholder="Escreva qualquer status criativo na hora..." 
+                                        class="flex-1 px-3 py-2 border border-gray-300 rounded-xl text-xs focus:border-shopee focus:outline-none"
+                                    >
+                                    <button onclick="sendCustomTracking('${order.id}')" class="bg-gray-900 hover:bg-shopee text-white font-bold px-3.5 py-2 rounded-xl text-xs transition shrink-0">
+                                        Enviar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.addTrackingUpdate = async function(orderId, statusTitle, descriptionText, isDelivered = false) {
+            if (!db || !firebaseUser) return;
+            const order = orders.find(o => o.id === orderId);
+            if (!order) return;
+
+            const now = getFormattedNow();
+            const updatedStatus = isDelivered ? `Seu pedido foi recebido por ${order.customerName}` : statusTitle;
+            const updatedDelivered = isDelivered ? true : (order.delivered || false);
+            const updatedTimeline = [
+                {
+                    status: statusTitle,
+                    description: descriptionText,
+                    time: now
+                },
+                ...(order.timeline || [])
+            ];
+
+            try {
+                const orderDocRef = doc(db, 'artifacts', appId, 'public', 'data', `shopeesim_${storeRoom}_orders`, orderId);
+                await updateDoc(orderDocRef, {
+                    currentStatus: updatedStatus,
+                    delivered: updatedDelivered,
+                    timeline: updatedTimeline
+                });
+                showToast(`Atualizado ao vivo: "${statusTitle}"`, 'success');
+            } catch (err) {
+                showToast('Erro ao atualizar rastreamento.', 'error');
+            }
+        };
+
+        window.sendCustomTracking = function(orderId) {
+            const input = document.getElementById(`custom-track-${orderId}`);
+            const text = input.value.trim();
+            if (!text) {
+                showToast('Digite uma mensagem primeiro!', 'error');
+                return;
+            }
+
+            const isDelivered = text.toLowerCase().includes('recebido') || text.toLowerCase().includes('entregue');
+            addTrackingUpdate(orderId, text, 'Atualização enviada diretamente pelo vendedor.', isDelivered);
+            input.value = '';
+        };
+
+        window.deleteOrder = async function(orderId) {
+            if (!db || !firebaseUser) return;
+            try {
+                const orderDocRef = doc(db, 'artifacts', appId, 'public', 'data', `shopeesim_${storeRoom}_orders`, orderId);
+                await deleteDoc(orderDocRef);
+                showToast('Pedido excluído.', 'info');
+            } catch (err) {
+                showToast('Erro ao excluir pedido.', 'error');
+            }
+        };
+
+        // ==================== UTILITÁRIOS ====================
+        window.toggleModal = function(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            } else {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        };
+
+        function formatCurrency(val) {
+            return Number(val || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function getFormattedNow() {
+            const d = new Date();
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear();
+            const hours = String(d.getHours()).padStart(2, '0');
+            const mins = String(d.getMinutes()).padStart(2, '0');
+            return `${day}/${month}/${year} às ${hours}:${mins}`;
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return String(text)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function escapeQuotes(text) {
+            if (!text) return '';
+            return String(text).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let bgColor = 'bg-gray-900';
+            let icon = 'fa-circle-info';
+            if (type === 'success') { bgColor = 'bg-teal-600'; icon = 'fa-circle-check'; }
+            if (type === 'error') { bgColor = 'bg-red-600'; icon = 'fa-triangle-exclamation'; }
+
+            toast.className = `${bgColor} text-white px-4 py-3 rounded-xl shadow-xl text-xs font-bold flex items-center gap-2.5 toast-enter pointer-events-auto max-w-xs sm:max-w-sm`;
+            toast.innerHTML = `<i class="fa-solid ${icon} text-sm"></i> <span>${escapeHtml(message)}</span>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3200);
+        }
+    </script>
+</body>
+</html>
+```
